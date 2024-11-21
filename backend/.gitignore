@@ -1,0 +1,11 @@
+# Arquivo de variáveis de ambiente
+venv
+.env
+
+# Pastas do cache do Python
+__pycache__/
+*.py[cod]
+
+# Arquivos do sistema
+*.sqlite3
+*.log
