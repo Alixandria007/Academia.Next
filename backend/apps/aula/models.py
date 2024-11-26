@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-from ..instrutor.models import Instrutor
+from ..funcionario.models import Instrutor
 from ..aluno.models import Aluno
 
 # Create your models here.
@@ -11,7 +11,7 @@ class Aula(models.Model):
         verbose_name_plural = 'Aulas'
 
     nome = models.CharField(max_length=120)
-    vagas = models.PositiveIntegerField(default=0)
+    vagas = models.PositiveIntegerField(default=1)
     horario_inicial = models.TimeField()
     horario_final = models.TimeField()
     instrutor = models.ForeignKey(Instrutor, on_delete=models.SET_NULL, null=True)

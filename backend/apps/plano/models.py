@@ -11,7 +11,7 @@ class Plano(models.Model):
         verbose_name_plural = 'Planos'
 
     nome = models.CharField(max_length=150, unique=True)
-    valor = models.PositiveIntegerField()
+    valor = models.PositiveIntegerField(default=1)
     duracao = models.CharField(choices=({'Men': 'Mensal', 'Tri': 'Trimestral', 'Sem': 'Semestral', 'Anual' : 'Anual'}), max_length=5)
 
     def __str__(self) -> str:

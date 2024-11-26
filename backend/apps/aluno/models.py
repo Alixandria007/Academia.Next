@@ -10,6 +10,8 @@ class Responsavel(AbstractUser):
         verbose_name = 'Responsavel'
         verbose_name_plural = "Responsaveis"
 
+    username = None
+    password = None
     telefone = models.CharField(max_length=20, null=True, blank=True)
     data_de_nascimento = models.DateField(null=True, blank=True)
     cpf = models.CharField(max_length=14, unique=True)
@@ -18,7 +20,7 @@ class Responsavel(AbstractUser):
     user_permissions = models.ManyToManyField(Permission, related_name='responsaveis_permissions', blank=True)
 
     def __str__(self) -> str:
-        return f'Responsavel {self.username}'
+        return f'Responsavel {self.first_name} {self.last_name}'
     
     
 class Aluno(AbstractUser):
@@ -27,6 +29,8 @@ class Aluno(AbstractUser):
         verbose_name = 'Aluno'
         verbose_name_plural = "Alunos"
 
+    password = None
+    username = None
     telefone = models.CharField(max_length=20, null=True, blank=True)
     data_de_nascimento = models.DateField(null=True, blank=True)
     cpf = models.CharField(max_length=14, unique=True)
@@ -38,5 +42,5 @@ class Aluno(AbstractUser):
 
 
     def __str__(self):
-        return f"{self.username}"
+        return f'Responsavel {self.first_name} {self.last_name}'
     
