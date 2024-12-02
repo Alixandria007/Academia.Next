@@ -2,7 +2,7 @@ import React from 'react';
 
 const QuickActions = () => {
   const actions = [
-    { label: 'Cadastrar Aluno', href: '#' },
+    { label: 'Cadastrar Aluno', href: '/alunos/cadastrar' },
     { label: 'Registrar Aula', href: '#' },
     { label: 'Gerar Relatório', href: '#' },
     { label: 'Configurar Planos', href: '#' },

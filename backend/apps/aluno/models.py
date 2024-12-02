@@ -4,43 +4,59 @@ from django.contrib.auth.models import AbstractUser,Group, Permission
 
 # Create your models here.
 
-class Responsavel(AbstractUser):
+class Responsavel(models.Model):
     
     class Meta:
         verbose_name = 'Responsavel'
         verbose_name_plural = "Responsaveis"
 
-    username = None
-    password = None
+    first_name = models.CharField(max_length=256)
+    last_name = models.CharField(max_length=256)
+    email = models.EmailField()
     telefone = models.CharField(max_length=20, null=True, blank=True)
     data_de_nascimento = models.DateField(null=True, blank=True)
     cpf = models.CharField(max_length=14, unique=True)
-
-    groups = models.ManyToManyField(Group, related_name='responsaveis_groups', blank=True)
-    user_permissions = models.ManyToManyField(Permission, related_name='responsaveis_permissions', blank=True)
 
     def __str__(self) -> str:
         return f'Responsavel {self.first_name} {self.last_name}'
     
     
-class Aluno(AbstractUser):
+class Aluno(models.Model):
 
     class Meta:
         verbose_name = 'Aluno'
         verbose_name_plural = "Alunos"
 
-    password = None
-    username = None
+    first_name = models.CharField(max_length=256)
+    last_name = models.CharField(max_length=256)
+    email = models.EmailField()
     telefone = models.CharField(max_length=20, null=True, blank=True)
     data_de_nascimento = models.DateField(null=True, blank=True)
     cpf = models.CharField(max_length=14, unique=True)
     ativo = models.BooleanField(default=True)
     responsavel = models.ForeignKey(Responsavel, on_delete=models.SET_NULL, null=True, blank=True)
 
-    groups = models.ManyToManyField(Group, related_name='alunos_groups', blank=True)
-    user_permissions = models.ManyToManyField(Permission, related_name='alunos_permissions', blank=True)
+    def __str__(self):
+        return f'Aluno {self.first_name} {self.last_name}'
+    
+class AvaliacaoFisica(models.Model):
+    aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE, related_name='avaliacoes_fisicas')
+    data_avaliacao = models.DateField(auto_now_add=True)
+    peso = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)  # em kg
+    altura = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)  # em metros
+    imc = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)  # índice de massa corporal
+    gordura_corporal = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)  # em %
+    massa_muscular = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)  # em kg
+    circunferencia_abdominal = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)  # em cm
 
+    def calcular_imc(self):
+        if self.peso and self.altura:
+            return self.peso / (self.altura ** 2)
+        return None
+
+    def save(self, *args, **kwargs):
+        self.imc = self.calcular_imc() if not self.imc else self.imc
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'Responsavel {self.first_name} {self.last_name}'
-    
+        return f'Avaliação Física de {self.aluno.nome} - {self.data_avaliacao}'

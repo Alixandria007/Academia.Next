@@ -34,7 +34,7 @@ const Dropdown: React.FC<DropdownProps> = ({ id, Texto, isOpen, onToggle, option
           {
             options.map((op, index) => 
             (
-              <Link key={index} href={op.href} className="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100">
+              <Link key={index} href={`${op.href}`} className="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100">
               {op.linkName}
             </Link>
             )

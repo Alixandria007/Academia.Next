@@ -5,12 +5,22 @@ from . import models
 
 @admin.register(models.Aluno)
 class AlunoAdmin(admin.ModelAdmin):
-    list_display = 'id', 'username','cpf','ativo'
+    list_display = 'id', 'first_name','cpf','ativo'
     list_display_links = 'id',
     ordering = '-id',
 
 @admin.register(models.Responsavel)
 class ResponsavelAdmin(admin.ModelAdmin):
-    list_display = 'id', 'username','cpf'
+    list_display = 'id', 'first_name','cpf'
     list_display_links = 'id',
     ordering = '-id',
+
+"""@admin.register(models.AvaliacaoFisica)
+class AvaliacaoFisica(admin.ModelAdmin):
+    list_display = ('aluno', 'data_avaliacao', 'peso', 'altura', 'imc') 
+    search_fields = ('aluno__nome',)  
+    readonly_fields = ('imc',)  
+
+    def save_model(self, request, obj, form, change):
+        obj.imc = obj.calcular_imc()
+        super().save_model(request, obj, form, change)"""

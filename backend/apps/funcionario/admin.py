@@ -11,6 +11,6 @@ class FuncionarioAdmin(admin.ModelAdmin):
 
 @admin.register(models.Instrutor)
 class InstrutorAdmin(admin.ModelAdmin):
-    list_display = 'funcionario_ptr', 'cref'
+    list_display = 'id','funcionario_ptr', 'cref'
     list_display_links = 'funcionario_ptr',
     ordering = '-funcionario_ptr',

@@ -10,3 +10,8 @@ class ResponsavelSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Responsavel
         fields = 'id', 'first_name', 'last_name', 'email', 'cpf','telefone', 'data_de_nascimento'
+
+class AvaliaçãoFisicaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Responsavel
+        fields = 'id', 'aluno', 'data_avaliacao', 'peso', 'altura','imc', 'gordura_corporal','massa_muscular', 'circunferencia_abdominal'

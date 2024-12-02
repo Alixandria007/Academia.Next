@@ -28,18 +28,18 @@ const ConsultarAlunos: React.FC = () => {
     FetchFuncionarios()
   }, [])
 
-  const headers: { key: keyof Funcionarios; label: string }[] = [
-    { key: 'id', label: 'ID' },
+  const headers: { key: keyof Funcionarios; label: string; href?: boolean }[] = [
+    { key: 'id', label: 'ID', href: true },
     { key: 'first_name', label: 'Nome' },
     { key: 'last_name', label: 'Sobrenome' },
     { key: 'cpf', label: 'CPF' },
   ];
 
-  const filterFuncionarios = (responsaveis: Funcionarios, searchTerm: string) => {
+  const filterFuncionarios = (funcionarios: Funcionarios, searchTerm: string) => {
     return (
-      responsaveis.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      responsaveis.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      responsaveis.cpf.includes(searchTerm)
+      funcionarios.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      funcionarios.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      funcionarios.cpf.includes(searchTerm)
     );
   };
 

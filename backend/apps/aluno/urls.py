@@ -1,5 +1,6 @@
 from django.urls import path, include
-from .views import AlunosView
+from . import views
 urlpatterns = [
-    path('', AlunosView.as_view())
+    path('', views.AlunosView.as_view()),
+    path('<int:id>/', views.AlunoDetailView.as_view())
 ]
