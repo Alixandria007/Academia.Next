@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -22,15 +22,29 @@ class FuncionarioView(APIView):
     
 class FuncionarioDetailView(APIView):
     def get(self, request, id):
-        funcionario = models.Funcionario.objects.filter(id = id).first()
-        serializer = serializers.FuncionarioSerializer(funcionario)
+        funcionario = get_object_or_404(models.Instrutor, id = id) if models.Instrutor.objects.filter(id = id) else get_object_or_404(models.Funcionario, id = id)
+        
+        if isinstance(funcionario, models.Instrutor):
+            serializer = serializers.InstrutorSerializer(funcionario)
+        else:
+            serializer = serializers.FuncionarioSerializer(funcionario)
+            
         return Response(serializer.data)
     
     def patch(self, request, id):
         data = request.data
-        funcionario = models.Funcionario.objects.filter(id = id).first()
+        funcionario = get_object_or_404(models.Funcionario, id=id)
         serializer = serializers.FuncionarioSerializer(funcionario, data = data, partial = True )
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status = status.HTTP_200_OK)
         return Response({'detail':'Erro ao atualizar os dados!!', 'errors': serializer.errors}, status = status.HTTP_400_BAD_REQUEST)
+    
+class InstrutorView(APIView):
+    def post(self, request):
+        data = request.data
+        serializer = serializers.InstrutorSerializer(data = data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response({'detail': 'Erro ao cadastrar o instrutor!!', 'errors': serializer.errors}, status= status.HTTP_400_BAD_REQUEST)

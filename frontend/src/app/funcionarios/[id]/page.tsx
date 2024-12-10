@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 interface Funcionario {
   id: number;
@@ -22,8 +22,7 @@ const DetalhesFuncionario: React.FC = () => {
   const [funcionario, setFuncionario] = useState<Funcionario | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
-
-  const {id} = useParams()
+  const { id } = useParams();  // Obtém o id da URL
 
   useEffect(() => {
     if (!id) {
@@ -31,6 +30,7 @@ const DetalhesFuncionario: React.FC = () => {
       return;
     }
 
+    // Função para buscar os dados do funcionário
     const fetchFuncionario = async () => {
       try {
         const response = await fetch(`http://127.0.0.1:8000/funcionario/${id}/`);

@@ -12,6 +12,7 @@ interface FuncionarioFormData {
   saida: string;
   salario: string;
   cpf: string;
+  cref: string | null;
   telefone: string;
   foto: File | null;
 }
@@ -28,10 +29,12 @@ export default function CadastrarFuncionario() {
     saida: '',
     salario: '',
     cpf: '',
+    cref:'',
     telefone: '',
     foto: null,
   });
 
+  const [instrutor, setInstrutor] = useState<boolean>(false)
   const [successMessage, setSuccessMessage] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -48,7 +51,15 @@ export default function CadastrarFuncionario() {
     }
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleCrefChange = (e: ChangeEvent<HTMLInputElement>) => {
+      setFormData({ ...formData, cref: e.target.value });
+  };
+
+  const handleInstrutorChange = () => {
+    setInstrutor(!instrutor)
+  }
+
+  const handleSubmit = async (e: FormEvent, instrutor: boolean) => {
     e.preventDefault();
 
     const dataToSend = new FormData();
@@ -60,10 +71,14 @@ export default function CadastrarFuncionario() {
     });
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/funcionario/', {
+
+      const response = instrutor ? await (fetch('http://127.0.0.1:8000/funcionario/instrutor/', {
         method: 'POST',
         body: dataToSend,
-      });
+      })): await (fetch('http://127.0.0.1:8000/funcionario/', {
+        method: 'POST',
+        body: dataToSend,
+      }));
 
       if (response.ok) {
         setSuccessMessage('Funcionário cadastrado com sucesso!');
@@ -78,6 +93,7 @@ export default function CadastrarFuncionario() {
           saida: '',
           salario: '',
           cpf: '',
+          cref:'',
           telefone: '',
           foto: null,
         });
@@ -103,9 +119,12 @@ export default function CadastrarFuncionario() {
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-md">
       <h1 className="text-2xl font-bold mb-4 text-center">Cadastrar Funcionário</h1>
+
       {successMessage && <div className="p-4 mb-4 text-green-700 bg-green-100 rounded">{successMessage}</div>}
+
       {errorMessage && <div className="p-4 mb-4 text-red-700 bg-red-100 rounded">{errorMessage}</div>}
-      <form onSubmit={handleSubmit}>
+
+      <form onSubmit={(e) => handleSubmit(e, instrutor)}>
         {[ 
           { id: 'first_name', label: 'Nome', type: 'text', required: true },
           { id: 'last_name', label: 'Sobrenome', type: 'text', required: true },
@@ -135,6 +154,21 @@ export default function CadastrarFuncionario() {
             )}
           </div>
         ))}
+
+        <div className="mb-4">
+          <label htmlFor="instrutor" className='block text-sm font-medium text-gray-700'>
+              Instrutor
+          </label>
+          <input type="checkbox" name="intrutor" id="instrutor" onChange={handleInstrutorChange} />
+        </div>
+
+        {instrutor && (
+          <div className='mb-4'>
+              <label htmlFor="cref" className='block text-sm font-medium text-gray-700'>CREF</label>
+              <input type="text" name='cref' id='cref' className='mt-1 block w-full p-2 border border-gray-300 rounded-md' onChange={handleCrefChange} required/>
+          </div>
+        )}
+
         <div className="mb-4">
           <label htmlFor="foto" className="block text-sm font-medium text-gray-700">
             Foto
