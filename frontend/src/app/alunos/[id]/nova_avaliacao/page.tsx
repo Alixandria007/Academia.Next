@@ -33,7 +33,7 @@ export default function CadastrarAvaliacaoFisica({ alunoId }: { alunoId: number 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://127.0.0.1:8000/avaliacao-fisica/', {
+      const response = await fetch('http://127.0.0.1:8000/avaliacao_fisica/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
