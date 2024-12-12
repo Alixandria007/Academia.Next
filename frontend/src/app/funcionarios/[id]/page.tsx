@@ -22,7 +22,7 @@ const DetalhesFuncionario: React.FC = () => {
   const [funcionario, setFuncionario] = useState<Funcionario | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
-  const { id } = useParams();  // Obtém o id da URL
+  const { id } = useParams(); 
 
   useEffect(() => {
     if (!id) {
@@ -30,7 +30,6 @@ const DetalhesFuncionario: React.FC = () => {
       return;
     }
 
-    // Função para buscar os dados do funcionário
     const fetchFuncionario = async () => {
       try {
         const response = await fetch(`http://127.0.0.1:8000/funcionario/${id}/`);
@@ -46,6 +45,28 @@ const DetalhesFuncionario: React.FC = () => {
 
     fetchFuncionario();
   }, [id, router]);
+
+  const handleUpdate = () => {
+    router.push(`/funcionarios/${id}/atualizar`);
+  };
+
+  const handleDelete = async () => {
+    if (confirm('Tem certeza que deseja excluir este funcionário?')) {
+      try {
+        const response = await fetch(`http://127.0.0.1:8000/funcionario/${id}/`, {
+          method: 'DELETE',
+        });
+        if (response.ok) {
+          alert('Funcionário excluído com sucesso!');
+          router.push('/funcionarios'); 
+        } else {
+          alert('Erro ao excluir o funcionário.');
+        }
+      } catch (error) {
+        console.error('Erro ao excluir o funcionário:', error);
+      }
+    }
+  };
 
   if (loading) {
     return <div className="text-center text-gray-500">Carregando...</div>;
@@ -107,6 +128,20 @@ const DetalhesFuncionario: React.FC = () => {
               <span>{funcionario.cref}</span>
             </div>
           )}
+        </div>
+        <div className="flex justify-center mt-6 space-x-4">
+          <button
+            onClick={handleUpdate}
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700"
+          >
+            Atualizar
+          </button>
+          <button
+            onClick={handleDelete}
+            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-700"
+          >
+            Excluir
+          </button>
         </div>
       </div>
     </div>

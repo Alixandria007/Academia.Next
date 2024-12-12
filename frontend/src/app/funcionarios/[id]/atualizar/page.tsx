@@ -13,12 +13,13 @@ interface FuncionarioFormData {
   salario: string;
   cpf: string;
   telefone: string;
+  cref?: string; 
   foto: File | null;
 }
 
 export default function AtualizarFuncionario() {
   const router = useRouter();
-  const { id } = useParams(); // Obter o ID do funcionário da rota
+  const { id } = useParams(); 
 
   const [formData, setFormData] = useState<FuncionarioFormData>({
     first_name: '',
@@ -30,23 +31,29 @@ export default function AtualizarFuncionario() {
     salario: '',
     cpf: '',
     telefone: '',
+    cref: '', 
     foto: null,
   });
 
+  const [showCref, setShowCref] = useState<boolean>(false); 
   const [successMessage, setSuccessMessage] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  // Carrega os dados do funcionário ao montar o componente
   useEffect(() => {
     const fetchFuncionario = async () => {
       try {
         const response = await fetch(`http://127.0.0.1:8000/funcionario/${id}/`);
         if (response.ok) {
           const data = await response.json();
+
+          if (data.cref){
+            setShowCref(true);
+          }
+          
           setFormData({
             ...data,
-            foto: null, // A foto não pode ser preenchida diretamente
+            foto: null,
           });
         } else {
           setErrorMessage('Erro ao carregar dados do funcionário.');
@@ -77,14 +84,14 @@ export default function AtualizarFuncionario() {
 
     const dataToSend = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
-      if (value !== null) {
+      if (value !== null && value !== '') {
         dataToSend.append(key, value as string | Blob);
       }
     });
 
     try {
       const response = await fetch(`http://127.0.0.1:8000/funcionario/${id}/`, {
-        method: 'PATCH', // Use PATCH para atualizações parciais
+        method: 'PATCH',
         body: dataToSend,
       });
 
@@ -120,7 +127,6 @@ export default function AtualizarFuncionario() {
           { id: 'first_name', label: 'Nome', type: 'text', required: true },
           { id: 'last_name', label: 'Sobrenome', type: 'text', required: true },
           { id: 'email', label: 'Email', type: 'email', required: true },
-          { id: 'data_admissao', label: 'Data de Admissão', type: 'date', required: true },
           { id: 'entrada', label: 'Hora de Entrada', type: 'time', required: true },
           { id: 'saida', label: 'Hora de Saída', type: 'time', required: true },
           { id: 'salario', label: 'Salário', type: 'number', required: true },
@@ -145,6 +151,26 @@ export default function AtualizarFuncionario() {
             )}
           </div>
         ))}
+
+        {showCref && (
+          <div className="mb-4">
+            <label htmlFor="cref" className="block text-sm font-medium text-gray-700">
+              CREF
+            </label>
+            <input
+              type="text"
+              id="cref"
+              name="cref"
+              value={formData.cref || ''}
+              onChange={handleInputChange}
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+            />
+            {fieldErrors['cref'] && (
+              <span className="text-red-600 text-sm">{fieldErrors['cref']}</span>
+            )}
+          </div>
+        )}
+
         <div className="mb-4">
           <label htmlFor="foto" className="block text-sm font-medium text-gray-700">
             Foto
@@ -158,6 +184,7 @@ export default function AtualizarFuncionario() {
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
           />
         </div>
+
         <button
           type="submit"
           className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition"

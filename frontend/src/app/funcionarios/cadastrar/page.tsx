@@ -7,7 +7,6 @@ interface FuncionarioFormData {
   first_name: string;
   last_name: string;
   email: string;
-  data_admissao: string;
   entrada: string;
   saida: string;
   salario: string;
@@ -24,12 +23,11 @@ export default function CadastrarFuncionario() {
     first_name: '',
     last_name: '',
     email: '',
-    data_admissao: '',
     entrada: '',
     saida: '',
     salario: '',
     cpf: '',
-    cref:'',
+    cref: null,
     telefone: '',
     foto: null,
   });
@@ -42,7 +40,7 @@ export default function CadastrarFuncionario() {
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    setFieldErrors({ ...fieldErrors, [name]: '' }); // Limpa o erro do campo alterado
+    setFieldErrors({ ...fieldErrors, [name]: '' });
   };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -56,6 +54,10 @@ export default function CadastrarFuncionario() {
   };
 
   const handleInstrutorChange = () => {
+    if (formData.cref){
+      formData.cref = null
+    }
+
     setInstrutor(!instrutor)
   }
 
@@ -72,10 +74,7 @@ export default function CadastrarFuncionario() {
 
     try {
 
-      const response = instrutor ? await (fetch('http://127.0.0.1:8000/funcionario/instrutor/', {
-        method: 'POST',
-        body: dataToSend,
-      })): await (fetch('http://127.0.0.1:8000/funcionario/', {
+      const response = await (fetch('http://127.0.0.1:8000/funcionario/', {
         method: 'POST',
         body: dataToSend,
       }));
@@ -88,7 +87,6 @@ export default function CadastrarFuncionario() {
           first_name: '',
           last_name: '',
           email: '',
-          data_admissao: '',
           entrada: '',
           saida: '',
           salario: '',
@@ -129,7 +127,6 @@ export default function CadastrarFuncionario() {
           { id: 'first_name', label: 'Nome', type: 'text', required: true },
           { id: 'last_name', label: 'Sobrenome', type: 'text', required: true },
           { id: 'email', label: 'Email', type: 'email', required: true },
-          { id: 'data_admissao', label: 'Data de Admissão', type: 'date', required: true },
           { id: 'entrada', label: 'Hora de Entrada', type: 'time', required: true },
           { id: 'saida', label: 'Hora de Saída', type: 'time', required: true },
           { id: 'salario', label: 'Salário', type: 'number', required: true },
