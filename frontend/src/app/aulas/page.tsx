@@ -9,7 +9,7 @@ interface Aula {
   vagas: number;
   horario_inicial: string;
   horario_final: string;
-  instrutor: { id: number; first_name: string; last_name: string };
+  instrutor: { id: number; first_name: string; last_name: string; foto?: string };
 }
 
 export default function Aulas() {
@@ -85,11 +85,23 @@ export default function Aulas() {
               className="p-4 mb-4 border rounded-md shadow-sm flex items-center hover:bg-gray-100 transition cursor-pointer"
               onClick={() => handleNavigateToDetails(aula.id)}
             >
+              <div className="flex-shrink-0 mr-4">
+                {aula.instrutor.foto ? (
+                  <img
+                    src={`http://127.0.0.1:8000/${aula.instrutor.foto}`}
+                    alt={`${aula.instrutor.first_name} ${aula.instrutor.last_name}`}
+                    className="w-16 h-16 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center">
+                    <span className="text-gray-500 text-center">Sem Foto</span>
+                  </div>
+                )}
+              </div>
+
               <div className="flex-1">
                 <p className="text-lg font-semibold">{aula.nome}</p>
-                <p className="text-gray-600">
-                  {`${aula.instrutor.first_name} ${aula.instrutor.last_name}`}
-                </p>
+                <p className="text-gray-600">{`${aula.instrutor.first_name} ${aula.instrutor.last_name}`}</p>
                 <p className="text-sm text-gray-700">
                   <span className="font-medium">Horário:</span> {`${aula.horario_inicial} - ${aula.horario_final}`}
                 </p>

@@ -5,6 +5,23 @@ from ..aluno.models import Aluno
 
 # Create your models here.
 
+class DiaSemana(models.Model):
+    DIAS_CHOICES = [
+        ('SEG', 'Segunda-feira'),
+        ('TER', 'Terça-feira'),
+        ('QUA', 'Quarta-feira'),
+        ('QUI', 'Quinta-feira'),
+        ('SEX', 'Sexta-feira'),
+        ('SAB', 'Sábado'),
+        ('DOM', 'Domingo'),
+    ]
+
+    nome = models.CharField(max_length=3, choices=DIAS_CHOICES, unique=True)
+
+    def __str__(self):
+        return dict(self.DIAS_CHOICES)[self.nome]
+
+
 class Aula(models.Model):
     class Meta:
         verbose_name = 'Aula'
@@ -15,9 +32,12 @@ class Aula(models.Model):
     horario_inicial = models.TimeField()
     horario_final = models.TimeField()
     instrutor = models.ForeignKey(Instrutor, on_delete=models.SET_NULL, null=True)
+    dias_da_semana = models.ManyToManyField(DiaSemana)
 
     def __str__(self) -> str:
-        return self.nome
+        dias = ", ".join([str(dia) for dia in self.dias_da_semana.all()])
+        return f"{self.nome} - {dias}"
+
 
 class Inscrição(models.Model):
     class Meta: 

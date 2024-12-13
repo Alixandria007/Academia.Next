@@ -14,3 +14,8 @@ class InscricaoAdmin(admin.ModelAdmin):
     list_display = 'id', 'aluno', 'aula'
     list_display_links = 'id',
     ordering = '-id',
+
+@admin.register(models.DiaSemana)
+class DiaSemanaAdmin(admin.ModelAdmin):
+    list_display = ('nome',)
+    search_fields = ('nome',)
