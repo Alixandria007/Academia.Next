@@ -17,7 +17,6 @@ class AulaView(APIView):
 class AulaDetailView(APIView):
     def get(self, request, id):
         aula = get_object_or_404(models.Aula, id = id)
-
         serializer = serializers.AulaSerializerGet(aula)
 
         return Response(serializer.data)

@@ -20,7 +20,7 @@ interface Aula {
   horario_final: string;
   instrutor: Instrutor;
   dias_da_semana: { id: number; nome: string }[];
-  num_alunos_matriculados: number; 
+  alunos_inscritos: number; 
 }
 
 export default function AulaDetalhes() {
@@ -50,11 +50,11 @@ export default function AulaDetalhes() {
   }, [id]);
 
   if (errorMessage) {
-    return <div className="p-6 text-red-700 bg-red-100 rounded">{errorMessage}</div>;
+    return <div className=" min-h-screen p-6 text-red-700 bg-red-100 rounded">{errorMessage}</div>;
   }
 
   if (!aula) {
-    return <div className="p-6 text-gray-600">Carregando detalhes da aula...</div>;
+    return <div className="min-h-screen p-6 text-gray-600">Carregando detalhes da aula...</div>;
   }
 
   return (
@@ -102,7 +102,7 @@ export default function AulaDetalhes() {
 
         <div className="p-4 bg-gray-100 rounded-lg shadow-inner">
           <h2 className="text-lg font-medium text-gray-700 mb-2">Alunos Matriculados</h2>
-          <p className="text-gray-800 text-xl">{aula.num_alunos_matriculados}</p>
+          <p className="text-gray-800 text-xl">{aula.alunos_inscritos}</p>
         </div>
       </div>
 

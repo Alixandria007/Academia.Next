@@ -15,10 +15,15 @@ class DiaSemanaSerializer(serializers.ModelSerializer):
 class AulaSerializerGet(serializers.ModelSerializer):
     instrutor = InstrutorSerializerAula()
     dias_da_semana = DiaSemanaSerializer(many = True)
+    alunos_inscritos = serializers.SerializerMethodField()
 
     class Meta:
         model = Aula
-        fields = ['id', 'nome', 'vagas', 'horario_inicial', 'horario_final', 'instrutor', 'dias_da_semana']
+        fields = ['id', 'nome', 'vagas', 'horario_inicial', 'horario_final', 'instrutor', 'dias_da_semana', 'alunos_inscritos']
+
+    def get_alunos_inscritos(self, obj):
+        incricoes = Inscrição.objects.filter(aula = obj.id).count()
+        return incricoes
 
 class InscriçãoSerializer(serializers.ModelSerializer):
     class Meta:
