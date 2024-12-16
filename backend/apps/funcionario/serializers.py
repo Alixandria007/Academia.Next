@@ -14,4 +14,4 @@ class InstrutorSerializer(serializers.ModelSerializer):
 class InstrutorSerializerAula(serializers.ModelSerializer):
     class Meta:
         model = models.Instrutor
-        fields = 'id' ,'first_name', 'last_name', 'foto'
+        fields = 'id' ,'first_name', 'last_name', 'foto', 'cref'

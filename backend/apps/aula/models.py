@@ -5,6 +5,8 @@ from ..aluno.models import Aluno
 
 # Create your models here.
 
+from django.db import models
+
 class DiaSemana(models.Model):
     DIAS_CHOICES = [
         ('SEG', 'Segunda-feira'),
