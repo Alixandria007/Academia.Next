@@ -17,5 +17,5 @@ class InscricaoAdmin(admin.ModelAdmin):
 
 @admin.register(models.DiaSemana)
 class DiaSemanaAdmin(admin.ModelAdmin):
-    list_display = ('nome',)
+    list_display = ('id','nome',)
     search_fields = ('nome',)

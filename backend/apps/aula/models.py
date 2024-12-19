@@ -42,13 +42,25 @@ class Aula(models.Model):
 
 
 class Inscrição(models.Model):
+    def current_date():
+        return timezone.now().date()
+    
     class Meta: 
         verbose_name = 'Inscrição'
         verbose_name = 'Inscricoes'
 
     aula = models.ForeignKey(Aula, on_delete=models.CASCADE)
     aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE)
-    data_inscricao = models.DateField(default=timezone.now)
+    data_inscricao = models.DateField(default=current_date)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['aula', 'aluno'],
+                name='unique_aula_aluno',
+                violation_error_message='Este aluno já esta inscrito na aula!!!'
+            )
+        ]
 
     def __str__(self) -> str:
         return f'Inscrição nº{self.id}'

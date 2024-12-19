@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Aula, Inscrição, DiaSemana
 from ..funcionario.serializers import InstrutorSerializerAula
+from ..aluno.serializers import AlunoSerializer
 
 class AulaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -10,7 +11,7 @@ class AulaSerializer(serializers.ModelSerializer):
 class DiaSemanaSerializer(serializers.ModelSerializer):
     class Meta:
         model = DiaSemana
-        fields = ['nome']
+        fields = ['id','nome']
 
 class AulaSerializerGet(serializers.ModelSerializer):
     instrutor = InstrutorSerializerAula()
@@ -26,6 +27,13 @@ class AulaSerializerGet(serializers.ModelSerializer):
         return incricoes
 
 class InscriçãoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Inscrição
+        fields = ['id', 'aula', 'aluno', 'data_inscricao']
+
+class InscriçãoSerializerGet(serializers.ModelSerializer):
+    aluno = AlunoSerializer()
+
     class Meta:
         model = Inscrição
         fields = ['id', 'aula', 'aluno', 'data_inscricao']
