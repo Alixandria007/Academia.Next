@@ -51,7 +51,9 @@ const AtualizarAula = () => {
   useEffect(() => {
     const fetchInstrutores = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/funcionario/instrutores/');
+        const response = await fetch('http://127.0.0.1:8000/funcionario/instrutores/', {
+          credentials: 'include'
+        });
         if (!response.ok) {
           throw new Error('Erro ao carregar os instrutores.');
         }
@@ -70,7 +72,9 @@ const AtualizarAula = () => {
       try {
         if (!id) return;
 
-        const response = await fetch(`http://127.0.0.1:8000/aula/${id}/`);
+        const response = await fetch(`http://127.0.0.1:8000/aula/${id}/`, {
+          credentials: 'include'
+        });
 
         if (!response.ok) {
           throw new Error('Erro ao carregar os dados da aula.');
@@ -81,8 +85,9 @@ const AtualizarAula = () => {
         setVagas(data.vagas);
         setHorarioInicial(data.horario_inicial);
         setHorarioFinal(data.horario_final);
+        if (data.instrutor !== null){
         setInstrutor(typeof data.instrutor === 'object' ? data.instrutor.id : data.instrutor);
-
+}
         // @ts-ignore
         const dias = data.dias_da_semana.map((dia) => dia.id);
         
@@ -105,7 +110,7 @@ const AtualizarAula = () => {
       horario_inicial: horarioInicial,
       horario_final: horarioFinal,
       instrutor,
-      dias_da_semana: diasSemana,  // Passando os dias da semana como string[]
+      dias_da_semana: diasSemana,  
     };
 
     try {
@@ -115,6 +120,7 @@ const AtualizarAula = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(dadosAula),
+        credentials: 'include'
       });
 
       if (response.ok) {

@@ -18,14 +18,37 @@ interface Aluno {
 
 const ConsultarAlunos: React.FC = () => {
   const [alunos, setAlunos] = useState<Aluno[] | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const router = useRouter()
   
   useEffect(() => {
     const FetchAlunos: Function = async () => {
-      const response = await fetch('http://127.0.0.1:8000/aluno');
-      const data: Aluno[] = await response.json();
+      setIsLoading(true)
+      try{
+        const response = await fetch('http://127.0.0.1:8000/aluno',{
+          headers:{
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include'
+        });
+        const data = await response.json();
 
-      setAlunos(data);
+        if(response.ok){
+            setAlunos(data);
+        }
+
+        else{
+          console.error(data.detail)
+        }
+      }
+
+      catch(error){
+        console.error(error)
+      }
+
+      finally{
+        setIsLoading(false)
+      }
     };
 
     FetchAlunos();
@@ -68,6 +91,8 @@ const ConsultarAlunos: React.FC = () => {
       }
     }
   };
+
+  if (isLoading) {return null}
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">

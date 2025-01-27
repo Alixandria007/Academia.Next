@@ -18,18 +18,41 @@ interface Funcionarios {
 
 const ConsultarAlunos: React.FC = () => {
   const [funcionarios, setFuncionarios] = useState<Funcionarios[] | null>(null)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
   const router = useRouter()
   
-  useEffect(() => {
-    const FetchFuncionarios: Function = async () => {
-      const response = await fetch('http://127.0.0.1:8000/funcionario')
-      const data: Funcionarios[] = await response.json()
-
-      setFuncionarios(data)
-    }
-
-    FetchFuncionarios()
-  }, [])
+    useEffect(() => {
+      const FetchFuncionarios: Function = async () => {
+        setIsLoading(true)
+        try{
+          const response = await fetch('http://127.0.0.1:8000/aluno',{
+            headers:{
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include'
+          });
+          const data = await response.json();
+  
+          if(response.ok){
+              setFuncionarios(data);
+          }
+  
+          else{
+            console.error(data.detail)
+          }
+        }
+  
+        catch(error){
+          console.error(error)
+        }
+  
+        finally{
+          setIsLoading(false)
+        }
+      };
+  
+      FetchFuncionarios();
+    }, []);
 
   const headers: { key: keyof Funcionarios; label: string; href?: boolean }[] = [
     { key: 'id', label: 'ID', href: true },
@@ -67,6 +90,8 @@ const ConsultarAlunos: React.FC = () => {
       }
     }
   };
+
+  if (isLoading) {return null}
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">

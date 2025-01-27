@@ -22,7 +22,9 @@ export default function Aulas() {
   useEffect(() => {
     const fetchAulas = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/aula/');
+        const response = await fetch('http://127.0.0.1:8000/aula/', {
+          credentials: 'include'
+        });
 
         if (response.ok) {
           const data = await response.json();
@@ -87,10 +89,10 @@ export default function Aulas() {
                 onClick={() => handleNavigateToDetails(aula.id)}
               >
                 <div className="flex-shrink-0 mr-4">
-                  {aula.instrutor.foto ? (
+                  {aula.instrutor?.foto ? (
                     <img
                       src={`http://127.0.0.1:8000/${aula.instrutor.foto}`}
-                      alt={`${aula.instrutor.first_name} ${aula.instrutor.last_name}`}
+                      alt={`${aula.instrutor?.first_name} ${aula.instrutor?.last_name}`}
                       className="w-16 h-16 rounded-full object-cover"
                     />
                   ) : (
@@ -102,7 +104,7 @@ export default function Aulas() {
 
                 <div className="flex-1">
                   <p className="text-lg font-semibold">{aula.nome}</p>
-                  <p className="text-gray-600">{`${aula.instrutor.first_name} ${aula.instrutor.last_name}`}</p>
+                  <p className="text-gray-600">{`${aula.instrutor?.first_name} ${aula.instrutor?.last_name}`}</p>
                   <p className="text-sm text-gray-700">
                     <span className="font-medium">Horário:</span> {`${aula.horario_inicial} - ${aula.horario_final}`}
                   </p>

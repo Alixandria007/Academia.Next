@@ -34,4 +34,3 @@ class Assinatura(models.Model):
 
     def __str__(self) -> str:
         return f'Assinatura nº{self.pk}'
-

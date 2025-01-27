@@ -1,11 +1,17 @@
 import React from 'react';
 
-const DashboardCards = () => {
+type Dashboard = {
+  alunos: number
+  instrutores: number
+  aulas: number
+  planos: number
+}
+const DashboardCards = ({alunos, instrutores, aulas, planos}: Dashboard ) => {
   const stats = [
-    { label: 'Alunos Ativos', value: 120 },
-    { label: 'Instrutores', value: 8 },
-    { label: 'Aulas Semanais', value: 24 },
-    { label: 'Planos Ativos', value: 45 }
+    { label: 'Alunos Ativos', value: alunos },
+    { label: 'Instrutores', value: instrutores },
+    { label: 'Aulas Semanais', value: aulas },
+    { label: 'Planos Ativos', value: planos }
   ];
 
   return (

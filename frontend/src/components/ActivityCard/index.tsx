@@ -4,19 +4,36 @@ import React from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, LineElement, PointElement, LinearScale, CategoryScale, Filler } from 'chart.js';
 
-// Registre os componentes necessários
 ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale, Filler);
 
-const ActivityChart = () => {
+type chartData = {
+  dia: string,
+  total: number
+}
+
+interface ActivityChartProps {
+  chartData: chartData[];
+}
+
+const ActivityChart = ({chartData}: ActivityChartProps) => {
+  const labels: string[]= [];
+  const total: number[] = []
+  const today = new Date();
+
+  chartData.map((data) => {
+    labels.push(data.dia)
+    total.push(data.total)
+  })
+
   const data = {
-    labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
+    labels: labels.reverse(),
     datasets: [
       {
         label: 'Check-ins Semanais',
-        data: [20, 35, 45, 30, 50, 60, 40],
+        data: total.reverse(),
         fill: true,
-        backgroundColor: 'rgba(99, 102, 241, 0.2)',
-        borderColor: '#6366f1',
+        backgroundColor: 'rgba(255, 0, 234, 0.2)',
+        borderColor: 'pink',
       },
     ],
   };

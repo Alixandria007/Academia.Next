@@ -52,6 +52,7 @@ export default function UpdateAluno() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(aluno),
+        credentials: 'include'
       });
 
       if (response.ok) {

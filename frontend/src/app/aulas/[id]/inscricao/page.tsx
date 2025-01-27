@@ -23,7 +23,9 @@ export default function InscricaoAula() {
   useEffect(() => {
     const fetchAlunos = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/aluno/');
+        const response = await fetch('http://127.0.0.1:8000/aluno/',{
+          credentials: 'include'
+        });
 
         if (response.ok) {
           const data = await response.json();
@@ -69,6 +71,7 @@ export default function InscricaoAula() {
           aluno: selectedAluno,
           aula: aulaId,
         }),
+        credentials: 'include'
       });
 
       if (response.ok) {

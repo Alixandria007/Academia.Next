@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from ..atividade.models import Atividade
 from . import models, serializers
 
 # Create your views here.
@@ -18,6 +19,8 @@ class FuncionarioView(APIView):
 
         if serializer.is_valid():
             serializer.save()
+            Atividade.objects.create(tipo_acao = 'cadastro', descricao = f'Novo funcionario cadastrado com o nome {serializer.validated_data['first_name']} {serializer.validated_data['last_name']}!!!')
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response({'detail': 'Erro ao cadaastrar o funcionario!!', 'errors': serializer.errors}, status= status.HTTP_400_BAD_REQUEST)
     
@@ -39,6 +42,8 @@ class FuncionarioDetailView(APIView):
         serializer = serializers.FuncionarioSerializer(funcionario, data = data, partial = True )
         if serializer.is_valid():
             serializer.save()
+
+            Atividade.objects.create(tipo_acao = 'atualizacao', descricao = f'Funcionario {funcionario.first_name} do id {funcionario.id} foi atualizado com sucesso!!!')
             return Response(serializer.data, status = status.HTTP_200_OK)
         return Response({'detail':'Erro ao atualizar os dados!!', 'errors': serializer.errors}, status = status.HTTP_400_BAD_REQUEST)
     
@@ -46,6 +51,7 @@ class FuncionarioDetailView(APIView):
         funcionario = get_object_or_404(models.Funcionario, id = id)
         
         if funcionario:
+            Atividade.objects.create(tipo_acao = 'exclusao', descricao = f'Funcionario {funcionario.first_name} do id {funcionario.pk} foi deletado com sucesso!!!')
             funcionario.delete()
             return Response('Funcionario Deletado com sucesso!!', status = status.HTTP_204_NO_CONTENT)
         

@@ -16,8 +16,8 @@ interface Aluno {
 interface AvaliacaoFisica {
     peso: number;
     altura: number;
-    percentual_gordura: number;
-    data: string;
+    gordura_corporal: number;
+    data_avaliacao: string;
   }
 
 export default function AlunoDetalhe() {
@@ -29,7 +29,12 @@ export default function AlunoDetalhe() {
 
   const fetchAluno = async (id: string) => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/aluno/${id}`);
+      const response = await fetch(`http://127.0.0.1:8000/aluno/${id}`,{
+        headers:{
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include'
+      });
       
       if (!response.ok) {
         throw new Error(`Erro na requisição: ${response.statusText}`);
@@ -45,8 +50,32 @@ export default function AlunoDetalhe() {
     }
   };
 
+  const fetchAvaliacoes = async () => {
+    try{
+    const response = await fetch(`http://127.0.0.1:8000/aluno/avaliacao_fisica/?id=${id}`,{
+      credentials: 'include'
+    }
+    );
+    const data = await response.json()
+
+    if (response.ok){
+      setAvaliacoes(data)
+    }
+
+    else{
+      console.error(data.detail)
+    }
+
+    }
+
+    catch{
+        console.error('Erro Desconhecido!!')
+    }
+
+  }
+
   useEffect(() => {
-    if (id && typeof id === 'string') fetchAluno(id); 
+    if (id && typeof id === 'string') fetchAluno(id); fetchAvaliacoes(); 
   }, [id]);
 
   if (loading) return <p>Carregando...</p>;
@@ -73,7 +102,7 @@ export default function AlunoDetalhe() {
           
 
           <button
-            onClick={() => router.push(`/alunos/${aluno.id}/atualizar`)}
+            onClick={() => router.push(`/alunos/${aluno.id}/assinatura`)}
             className="bg-yellow-300 text-white py-2 px-4 rounded-md hover:bg-yellow-500"
           >
             Renovar Assinatura
@@ -83,26 +112,26 @@ export default function AlunoDetalhe() {
       </div>
 
 
-      <h1 className="text-2xl font-bold my-4">Detalhes das Avalições Fisicas</h1>
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        
-        {avaliacoes.length === 0 ? (
-          <p className="text-center">Este aluno ainda não possui avaliações físicas registradas.</p>
-        ) : (
-          <ul>
-            {avaliacoes.map((avaliacao, index) => (
-              <li key={index} className="mb-4">
-                <div>
-                  <p><strong>Peso:</strong> {avaliacao.peso} kg</p>
-                  <p><strong>Altura:</strong> {avaliacao.altura} m</p>
-                  <p><strong>Percentual de Gordura:</strong> {avaliacao.percentual_gordura} %</p>
-                  <p><strong>Data:</strong> {avaliacao.data}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      <h1 className="text-3xl font-extrabold my-6 text-center text-gray-800">Detalhes das Avaliações Físicas</h1>
+
+<div className="bg-white p-8 rounded-lg shadow-lg max-w-4xl mx-auto">
+  {avaliacoes.length === 0 ? (
+    <p className="text-center text-xl text-gray-500">Este aluno ainda não possui avaliações físicas registradas.</p>
+  ) : (
+    <ul className="space-y-6">
+      {avaliacoes.map((avaliacao, index) => (
+        <li key={index} className="bg-gray-50 p-6 rounded-lg shadow-md">
+          <div>
+            <p className="text-lg font-medium text-gray-700"><strong>Peso:</strong> {avaliacao.peso} kg</p>
+            <p className="text-lg font-medium text-gray-700"><strong>Altura:</strong> {avaliacao.altura} m</p>
+            <p className="text-lg font-medium text-gray-700"><strong>Percentual de Gordura:</strong> {avaliacao.gordura_corporal} %</p>
+            <p className="text-lg font-medium text-gray-700"><strong>Data:</strong> {avaliacao.data_avaliacao}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
 
     </div>
   );

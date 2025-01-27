@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, ChangeEvent, FormEvent } from 'react';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 interface AvaliacaoFisicaFormData {
+  aluno: number;
   peso: string;
   altura: string;
   gordura_corporal: string;
@@ -11,10 +12,12 @@ interface AvaliacaoFisicaFormData {
   circunferencia_abdominal: string;
 }
 
-export default function CadastrarAvaliacaoFisica({ alunoId }: { alunoId: number }) {
+export default function CadastrarAvaliacaoFisica() {
   const router = useRouter();
+  const {id} = useParams()
 
   const [formData, setFormData] = useState<AvaliacaoFisicaFormData>({
+    aluno: Number(id),
     peso: '',
     altura: '',
     gordura_corporal: '',
@@ -33,18 +36,20 @@ export default function CadastrarAvaliacaoFisica({ alunoId }: { alunoId: number 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://127.0.0.1:8000/avaliacao_fisica/', {
+      const response = await fetch('http://127.0.0.1:8000/aluno/avaliacao_fisica/', {
         method: 'POST',
-        headers: {
+        headers:{
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ...formData, aluno: alunoId }),
+        body: JSON.stringify({ ...formData}),
+        credentials: 'include'
       });
 
       if (response.ok) {
         setSuccessMessage('Avaliação física cadastrada com sucesso!');
         setErrorMessage('');
         setFormData({
+          aluno: Number(id),
           peso: '',
           altura: '',
           gordura_corporal: '',
@@ -52,7 +57,7 @@ export default function CadastrarAvaliacaoFisica({ alunoId }: { alunoId: number 
           circunferencia_abdominal: '',
         });
 
-        setTimeout(() => router.push(`/alunos/${alunoId}/`), 1000);
+        setTimeout(() => router.push(`/alunos/${id}/`), 1000);
       } else {
         const errorData = await response.json();
         setErrorMessage(errorData.detail || 'Erro ao cadastrar avaliação física.');

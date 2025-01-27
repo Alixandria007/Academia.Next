@@ -40,7 +40,7 @@ const DropdownContainer: React.FC<{}> = () => {
         onToggle={handleToggle}
         isOpen = {openDropdown === 'planos'}
         id='planos'
-        options={[{href: "#", linkName: "Teste"}]}/>
+        options={[{href: "/planos/", linkName: "Consultar Planos"}, {href: "/planos/cadastrar/", linkName: "Cadastrar Planos"} ]}/>
         
       </>
     );

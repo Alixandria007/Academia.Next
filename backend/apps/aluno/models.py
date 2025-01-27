@@ -3,23 +3,6 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser,Group, Permission
 
 # Create your models here.
-
-class Responsavel(models.Model):
-    
-    class Meta:
-        verbose_name = 'Responsavel'
-        verbose_name_plural = "Responsaveis"
-
-    first_name = models.CharField(max_length=256)
-    last_name = models.CharField(max_length=256)
-    email = models.EmailField()
-    telefone = models.CharField(max_length=20, null=True, blank=True)
-    data_de_nascimento = models.DateField(null=True, blank=True)
-    cpf = models.CharField(max_length=14, unique=True)
-
-    def __str__(self) -> str:
-        return f'Responsavel {self.first_name} {self.last_name}'
-    
     
 class Aluno(models.Model):
 
@@ -34,8 +17,7 @@ class Aluno(models.Model):
     data_de_nascimento = models.DateField(null=True, blank=True)
     cpf = models.CharField(max_length=14, unique=True)
     ativo = models.BooleanField(default=True)
-    responsavel = models.ForeignKey(Responsavel, on_delete=models.SET_NULL, null=True, blank=True)
-
+    
     def __str__(self):
         return f'Aluno {self.first_name} {self.last_name}'
     
@@ -59,4 +41,4 @@ class AvaliacaoFisica(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'Avaliação Física de {self.aluno.nome} - {self.data_avaliacao}'
+        return f'Avaliação Física de {self.aluno.first_name} - {self.data_avaliacao}'

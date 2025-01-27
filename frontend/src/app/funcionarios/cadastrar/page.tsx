@@ -64,19 +64,15 @@ export default function CadastrarFuncionario() {
   const handleSubmit = async (e: FormEvent, instrutor: boolean) => {
     e.preventDefault();
 
-    const dataToSend = new FormData();
-
-    Object.entries(formData).forEach(([key, value]) => {
-      if (value !== null) {
-        dataToSend.append(key, value as string | Blob);
-      }
-    });
-
     try {
 
       const response = await (fetch('http://127.0.0.1:8000/funcionario/', {
         method: 'POST',
-        body: dataToSend,
+        headers:{
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(formData),
       }));
 
       if (response.ok) {

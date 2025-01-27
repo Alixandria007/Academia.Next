@@ -39,7 +39,9 @@ export default function AulaDetalhes() {
   useEffect(() => {
     const fetchAulaDetails = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/aula/${id}/`);
+        const response = await fetch(`http://127.0.0.1:8000/aula/${id}/`,
+          {credentials: 'include'}
+        );
 
         if (response.ok) {
           const data = await response.json();
@@ -55,7 +57,9 @@ export default function AulaDetalhes() {
 
     const fetchInscricoes = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/aula/${id}/inscricao`);
+        const response = await fetch(`http://127.0.0.1:8000/aula/${id}/inscricao`,
+          {credentials:'include'}
+        );
 
         if (response.ok) {
           const data = await response.json();
@@ -87,7 +91,8 @@ export default function AulaDetalhes() {
   const HandleDelete = async () => {
     try{
     const response = await fetch(`http://127.0.0.1:8000/aula/${id}/`, {
-      method: "DELETE"
+      method: "DELETE",
+      credentials: 'include'
     })
 
     if (response.ok) {
@@ -113,10 +118,10 @@ export default function AulaDetalhes() {
         {errorMessage && <div className="p-4 mb-4 text-red-700 bg-red-100 text-center rounded">{errorMessage}</div>}
 
         <div className="flex items-center mb-8">
-          {aula.instrutor.foto ? (
+          {aula.instrutor?.foto ? (
               <img
               src={`http://127.0.0.1:8000/${aula.instrutor.foto}`}
-              alt={`${aula.instrutor.first_name} ${aula.instrutor.last_name}`}
+              alt={`${aula.instrutor?.first_name} ${aula.instrutor?.last_name}`}
               className="w-32 h-32 rounded-full object-cover border-2 border-blue-500 mr-6"
               />
           ) : (
@@ -126,9 +131,9 @@ export default function AulaDetalhes() {
           )}
           <div>
               <p className="text-2xl font-semibold text-gray-800">
-              {aula.instrutor.first_name} {aula.instrutor.last_name}
+              {aula.instrutor?.first_name} {aula.instrutor?.last_name}
               </p>
-              {aula.instrutor.cref && (
+              {aula.instrutor?.cref && (
               <p className="text-gray-600 mt-1">
                   <span className="font-medium">CREF:</span> {aula.instrutor.cref}
               </p>
