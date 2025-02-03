@@ -58,8 +58,8 @@ class LogoutView(APIView):
             status=status.HTTP_200_OK
         )
 
-        response.delete_cookie('access_token')
-        response.delete_cookie('refresh_token')
+        response.set_cookie("access_token", "", httponly=True, expires="Thu, 01 Jan 1970 00:00:00 GMT", path="/",samesite='None', secure=True)
+        response.set_cookie("refresh_token", "", httponly=True, expires="Thu, 01 Jan 1970 00:00:00 GMT", path="/", samesite='None', secure=True)
         return response
 
 

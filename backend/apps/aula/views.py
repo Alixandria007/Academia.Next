@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import Http404
+from utils import create_activity
 from . import models
 from . import serializers
 
@@ -21,9 +22,13 @@ class AulaView(APIView):
         serializer = serializers.AulaSerializer(data = data)
         if serializer.is_valid():
             serializer.save()
+            create_activity(
+                tipo = 'cadastro',
+                descricao = 'Nova aula cadastrada com sucesso!!'
+            )
             return Response({"detail":"Aula cadastrada com sucesso!!"}, status= status.HTTP_201_CREATED)
         
-        return Response({"detail":"Erro ao cadastrar aula!!"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail":"Erro ao cadastrar aula!!", 'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AulaDetailView(APIView):
@@ -36,8 +41,13 @@ class AulaDetailView(APIView):
     def delete(self, request, id):
         try:
             aula = get_object_or_404(models.Aula, id=id)
+            create_activity(
+                tipo = 'exclusao',
+                descricao = f'Aula "{aula.nome}" apagada com sucesso!!!'
+            )
             aula.delete()
             return Response({"detail":"Aula apagada com sucesso!!!"}, status= status.HTTP_204_NO_CONTENT)
+        
         except Http404:
             return Response({"detail": "A aula com o ID fornecido não foi encontrada."}, status=status.HTTP_404_NOT_FOUND)
         
@@ -49,8 +59,13 @@ class AulaDetailView(APIView):
             serializer = serializers.AulaSerializer(aula, data = data, partial = True)
             if serializer.is_valid():
                 serializer.save()
+                create_activity(
+                    tipo = 'atualizacao',
+                    descricao = f'Aula "{aula.nome}" teve os dados atualizados!!'
+                )
                 return Response({"detail":"Aula atualizada com sucesso!!!"}, status= status.HTTP_200_OK)
-            return Response({"detail":"Erro ao atualizar a aula!!!"}, status= status.HTTP_400_BAD_REQUEST)
+                
+            return Response([{"detail":"Erro ao atualizar a aula!!!"}, serializer.errors], status= status.HTTP_400_BAD_REQUEST)
         except Http404:
             return Response({"detail": "A aula com o ID fornecido não foi encontrada."}, status=status.HTTP_404_NOT_FOUND)
         
@@ -72,7 +87,11 @@ class InscriçãoView(APIView):
         serializer = serializers.InscriçãoSerializer(data = data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"detail":"Inscrição feita com sucesso!!"}, status= status.HTTP_201_CREATED)
+            create_activity(
+                tipo = 'inscricao',
+                descricao = f'Inscrição feita na aula "{serializer.validated_data['aula'].nome}"!!!'
+            )
+            return Response({"detail":"Inscrição feita com sucesso!!", 'errors': serializer.errors}, status= status.HTTP_201_CREATED)
         
         if models.Inscrição.objects.filter(aula = data.get("aula"), aluno = data.get("aluno")).exists():
             return Response({"detail":"Aluno já esta inscrito na aula!!"}, status=status.HTTP_400_BAD_REQUEST)

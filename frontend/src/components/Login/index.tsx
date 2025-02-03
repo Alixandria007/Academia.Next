@@ -1,7 +1,6 @@
 'use client'
 
-//@ts-ignore
-import Cookies from 'js-cookie'
+
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
@@ -10,13 +9,11 @@ interface FormData {
   password: string;
 }
 
-const Login = () => {
+const Login = ({ onLoginSuccess }: { onLoginSuccess: () => void }) => {
   const [formData, setFormData] = useState<FormData>({ username: '', password: '' });
   const [error, setError] = useState<string>('');
   const router = useRouter()
-  const csrfToken = Cookies.get('csrftoken')
   
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -34,7 +31,6 @@ const Login = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': csrfToken, 
         },
           credentials:'include',
           body: JSON.stringify(formData),
@@ -43,8 +39,9 @@ const Login = () => {
         const data = await response.json()
 
         if (response.ok){
-          router.push('/')
+          onLoginSuccess()
         }
+        
         else{
           setError(data.detail)
         }
@@ -95,12 +92,6 @@ const Login = () => {
             Entrar
           </button>
         </form>
-
-        <div className="mt-4 text-center">
-          <a href="/forgot-password" className="text-sm text-indigo-600 hover:text-indigo-700">
-            Esqueceu a senha?
-          </a>
-        </div>
       </div>
     </div>
   );

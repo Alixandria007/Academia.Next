@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { FiCheckCircle, FiEdit, FiTrash2 } from 'react-icons/fi';
 import Consultar from '@/components/Consultas';
 import { useRouter } from 'next/navigation';
+import ConfirmScreen from '@/components/ConfirmScreen';
 
 interface Aluno {
   id: number;
@@ -19,6 +20,8 @@ interface Aluno {
 const ConsultarAlunos: React.FC = () => {
   const [alunos, setAlunos] = useState<Aluno[] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [onConfirmScreen, setOnConfirmScreen] = useState<boolean>(false)
+  const [selectedAlunoId, setSelectedAlunoId] = useState<number | null>(null);
   const router = useRouter()
   
   useEffect(() => {
@@ -26,10 +29,10 @@ const ConsultarAlunos: React.FC = () => {
       setIsLoading(true)
       try{
         const response = await fetch('http://127.0.0.1:8000/aluno',{
+          credentials: 'include',
           headers:{
             'Content-Type': 'application/json',
-          },
-          credentials: 'include'
+          }
         });
         const data = await response.json();
 
@@ -75,21 +78,20 @@ const ConsultarAlunos: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm('Tem certeza que deseja excluir este aluno?')) {
       try {
         const response = await fetch(`http://127.0.0.1:8000/aluno/${id}/`, {
           method: 'DELETE',
+          credentials: 'include'
         });
-        if (response.ok) {
-          alert('Aluno excluído com sucesso!');
+
+        if (response.status) {
+          router.refresh()
           setAlunos(alunos?.filter((aluno) => aluno.id !== id) || null);
         } else {
-          alert('Erro ao excluir o aluno.');
         }
       } catch (error) {
         console.error('Erro ao excluir o aluno:', error);
       }
-    }
   };
 
   if (isLoading) {return null}
@@ -110,8 +112,10 @@ const ConsultarAlunos: React.FC = () => {
             >
               <FiEdit />
             </button>
+
             <button
-              onClick={() => handleDelete(item.id)}
+              id={String(item.id)}
+              onClick={() => {setSelectedAlunoId(item.id); setOnConfirmScreen(true)}}
               className="text-red-500 hover:text-red-700"
             >
               <FiTrash2 />
@@ -119,6 +123,16 @@ const ConsultarAlunos: React.FC = () => {
           </div>
         )}
       />
+
+
+      {
+        onConfirmScreen && (
+          <ConfirmScreen
+          onConfirm={() => handleDelete(Number(selectedAlunoId))} 
+          onClose={() => setOnConfirmScreen(false)}
+          />
+        )
+      }
     </div>
   );
 };

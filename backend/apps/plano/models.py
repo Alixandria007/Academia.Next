@@ -4,6 +4,20 @@ from django.utils import timezone
 
 # Create your models here.
 
+class AtividadeExtra(models.Model):
+    TIPOS_ATIVIDADE = [
+        ('aulas_coletivas', 'Aulas Coletivas'),
+        ('funcional', 'Treinamento Funcional'),
+        ('artes_marciais', 'Artes Marciais e Defesa Pessoal'),
+        ('yoga_alongamento', 'Yoga e Alongamento'),
+    ]
+
+    nome = models.CharField(max_length=100, choices=TIPOS_ATIVIDADE, unique=True)
+    descricao = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.get_nome_display()
+    
 class Plano(models.Model):
 
     class Meta:
@@ -13,7 +27,7 @@ class Plano(models.Model):
     nome = models.CharField(max_length=150, unique=True)
     valor = models.PositiveIntegerField(default=1)
     duracao = models.CharField(choices=({'Men': 'Mensal', 'Tri': 'Trimestral', 'Sem': 'Semestral', 'Anual' : 'Anual'}), max_length=5)
-    aulas = models.BooleanField(default = False)
+    atividade_extra = models.ManyToManyField(AtividadeExtra, blank=True)
 
     def __str__(self) -> str:
         return f'Plano {self.nome}'

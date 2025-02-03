@@ -30,7 +30,7 @@ class DashBoardView(APIView):
         try:
             from ..aula.models import DiaSemana
             from ..aluno.models import Aluno
-            from ..funcionario.models import Instrutor
+            from ..funcionario.models import Funcionario
             from ..plano.models import Plano
 
             aulas_per_dia = DiaSemana.objects.annotate(total_aulas_dia=Count('aula')).values('nome', 'total_aulas_dia')
@@ -39,7 +39,7 @@ class DashBoardView(APIView):
             for aula in aulas_per_dia.values():
                 total_aulas += aula.get('total_aulas_dia')
 
-            instrutores = Instrutor.objects.all().count()
+            instrutores = Funcionario.objects.all().count()
             alunos = Aluno.objects.all().count()
             planos = Plano.objects.all().count()
            

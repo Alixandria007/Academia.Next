@@ -14,3 +14,8 @@ class AssinaturaAdmin(admin.ModelAdmin):
     list_display =  'id', 'plano', 'aluno'
     list_display_links = 'id',
     ordering = '-id',
+
+@admin.register(models.AtividadeExtra)
+class AtividadeAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'descricao') 
+    search_fields = ('nome',)

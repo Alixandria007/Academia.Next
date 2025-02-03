@@ -1,20 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-//@ts-ignore
-import Cookies from 'js-cookie';
+import Login from '../Login';
+import { Header } from '../Header';
+import Footer from '../Footer';
 
 export const revalidate = 10;
 
 export default function AuthComponent({ children }: { children: React.ReactNode }) {
-  const router = useRouter()
-  const [isLoading, setIsLoading] = useState(true);
-  const csrfToken = Cookies.get('csrftoken')
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isAutheticated, setIsAuthenticated] = useState<boolean>(true)
 
   useEffect(() => {
     const verifyTokens = async () => {
-
       const refreshAccessToken = async () => {
         try {
           const response = await fetch('http://127.0.0.1:8000/api/token/refresh/', {
@@ -26,12 +24,11 @@ export default function AuthComponent({ children }: { children: React.ReactNode 
             const data = await response.json();
           } else {
             console.warn('Erro ao atualizar o token, redirecionando para login.');
-            router.push('/login/')
+            setIsAuthenticated(false)
           }
         } catch (error) {
           console.error('Erro ao tentar atualizar o token:', error);
-          router.push('/login/')
-
+          setIsAuthenticated(false)
         }
       };
 
@@ -41,7 +38,6 @@ export default function AuthComponent({ children }: { children: React.ReactNode 
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'X-CSRFToken': csrfToken, 
           },
             credentials: 'include',
           });
@@ -52,8 +48,8 @@ export default function AuthComponent({ children }: { children: React.ReactNode 
           }
         } catch (error) {
           console.error('Erro ao verificar o token:', error);
-          router.push('/login/')
-        }
+          setIsAuthenticated(false)
+          }
       };
 
       await checkAccessToken();
@@ -65,5 +61,11 @@ export default function AuthComponent({ children }: { children: React.ReactNode 
 
   if (isLoading) return null;
 
-  return <>{children}</>;
+  if (!isAutheticated) return <><Login onLoginSuccess={() => setIsAuthenticated(true)}/></>
+
+  return (<>
+            <Header/>
+            {children}
+            <Footer/>
+          </>);
 }

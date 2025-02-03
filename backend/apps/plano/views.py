@@ -5,8 +5,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.http import Http404
 from . import models, serializers
-from ..atividade.models import Atividade
 from ..aluno.models import Aluno
+from utils import create_activity
 
 # Create your views here.
 
@@ -26,7 +26,7 @@ class PlanoView(APIView):
         serializer = serializers.PlanoSerializer(data = data)
         if serializer.is_valid():
             serializer.save()
-            Atividade.objects.create(tipo_acao = 'cadastro', descricao = f'Novo Plano foi cadastrado com o nome {serializer.validated_data['nome']}!!!')
+            create_activity(tipo = 'cadastro', descricao = f'Novo Plano foi cadastrado com o nome {serializer.validated_data['nome']}!!!')
 
             return Response({"detail":"Plano cadastrado com sucesso!!"}, status= status.HTTP_201_CREATED)
         
@@ -47,7 +47,7 @@ class PlanoDetailView(APIView):
             plano = get_object_or_404(models.Plano, id = id)
             plano.delete()
 
-            Atividade.objects.create(tipo_acao = 'atualizacao', descricao = f'Plano {plano.nome} do id {plano.pk} foi deletado com sucesso!!!')
+            create_activity(tipo = 'atualizacao', descricao = f'Plano {plano.nome} do id {plano.pk} foi deletado com sucesso!!!')
 
             return Response({"detail": "Plano deletado com sucesso!!"}, status = status.HTTP_204_NO_CONTENT)
         except Http404:
@@ -59,7 +59,7 @@ class PlanoDetailView(APIView):
         serializer = serializers.PlanoSerializer(plano, data = data, partial = True )
         if serializer.is_valid():
             serializer.save()
-            Atividade.objects.create(tipo_acao = 'atualizacao', descricao = f'Plano {plano.nome} foi atualizado com sucesso!!!')
+            create_activity(tipo = 'atualizacao', descricao = f'Plano {plano.nome} foi atualizado com sucesso!!!')
             return Response(serializer.data, status = status.HTTP_200_OK)
         return Response({'detail':'Erro ao atualizar os dados!!', 'errors': serializer.errors}, status = status.HTTP_400_BAD_REQUEST)
     
@@ -96,7 +96,7 @@ class AssinaturaView(APIView):
         if serializer.is_valid():
             serializer.save()
 
-            Atividade.objects.create(tipo_acao = 'assinatura', descricao = f'Nova assinatura de plano do tipo {duracao} do aluno {aluno.first_name} {aluno.last_name} do ID-{aluno.pk}')
+            create_activity(tipo = 'assinatura', descricao = f'Nova assinatura de plano do tipo {duracao} do aluno {aluno.first_name} {aluno.last_name} do ID-{aluno.pk}')
             return Response({"detail":"Assinatura cadastrada com sucesso!!"}, status= status.HTTP_201_CREATED)
         
         return Response({"detail":"Erro ao cadastrar aula!!"}, status=status.HTTP_400_BAD_REQUEST)

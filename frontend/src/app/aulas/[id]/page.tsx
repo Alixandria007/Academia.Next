@@ -57,7 +57,7 @@ export default function AulaDetalhes() {
 
     const fetchInscricoes = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/aula/${id}/inscricao`,
+        const response = await fetch(`http://127.0.0.1:8000/aula/${id}/inscricao/`,
           {credentials:'include'}
         );
 

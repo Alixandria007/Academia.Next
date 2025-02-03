@@ -1,6 +1,6 @@
 'use client'
 
-import ActivityChart from '@/components/ActivityCard';
+import ActivityChart from '@/components/ActivityChart';
 import DashboardCards from '@/components/DashboardCards';
 import { Header } from '@/components/Header';
 import QuickActions from '@/components/QuickActions';

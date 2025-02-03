@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
-from ..funcionario.models import Instrutor
+from apps.plano.models import AtividadeExtra
+from ..funcionario.models import Funcionario
 from ..aluno.models import Aluno
 
 # Create your models here.
@@ -33,8 +34,9 @@ class Aula(models.Model):
     vagas = models.PositiveIntegerField(default=1)
     horario_inicial = models.TimeField()
     horario_final = models.TimeField()
-    instrutor = models.ForeignKey(Instrutor, on_delete=models.SET_NULL, null=True)
+    instrutor = models.ForeignKey(Funcionario, on_delete=models.SET_NULL, null=True)
     dias_da_semana = models.ManyToManyField(DiaSemana)
+    tipo_atividade = models.ForeignKey(AtividadeExtra, on_delete=models.CASCADE, default=1)
 
     def __str__(self) -> str:
         dias = ", ".join([str(dia) for dia in self.dias_da_semana.all()])

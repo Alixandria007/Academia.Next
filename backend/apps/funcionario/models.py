@@ -19,17 +19,7 @@ class Funcionario(models.Model):
     salario = models.DecimalField(max_digits=10, decimal_places=2)    
     cpf = models.CharField(max_length=14, unique=True)
     telefone = models.CharField(max_length=20, null=True, blank=True)
+    cref = models.CharField(max_length=20, blank=True, null=True, unique=True)
 
     def __str__(self) -> str:
         return f'Funcionario {self.first_name} {self.last_name}'
-    
-
-class Instrutor(Funcionario):
-    class Meta:
-        verbose_name = 'Instrutor'
-        verbose_name_plural = 'Instrutores'
-
-    cref = models.CharField(max_length=20)
-
-    def __str__(self) -> str:
-        return f'Instrutor {self.first_name} {self.last_name}'

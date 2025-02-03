@@ -32,48 +32,51 @@ export default function CadastrarFuncionario() {
     foto: null,
   });
 
-  const [instrutor, setInstrutor] = useState<boolean>(false)
+  const [instrutor, setInstrutor] = useState<boolean>(false);
   const [successMessage, setSuccessMessage] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-    setFieldErrors({ ...fieldErrors, [name]: '' });
+    setFormData(prev => ({ ...prev, [name]: value }));
+    setFieldErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFormData({ ...formData, foto: e.target.files[0] });
+      setFormData(prev => ({ ...prev, foto: e.target.files![0] }));
     }
   };
 
   const handleCrefChange = (e: ChangeEvent<HTMLInputElement>) => {
-      setFormData({ ...formData, cref: e.target.value });
+    setFormData(prev => ({ ...prev, cref: e.target.value }));
   };
 
   const handleInstrutorChange = () => {
-    if (formData.cref){
-      formData.cref = null
-    }
+    setInstrutor(prev => !prev);
+    setFormData(prev => ({
+      ...prev,
+      cref: instrutor ? null : prev.cref, // Se desativar instrutor, limpa cref
+    }));
+  };
 
-    setInstrutor(!instrutor)
-  }
-
-  const handleSubmit = async (e: FormEvent, instrutor: boolean) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     try {
+      const formDataToSend = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value !== null) {
+          formDataToSend.append(key, value);
+        }
+      });
 
-      const response = await (fetch('http://127.0.0.1:8000/funcionario/', {
+      const response = await fetch('http://127.0.0.1:8000/funcionario/', {
         method: 'POST',
-        headers:{
-          'Content-Type': 'application/json',
-        },
         credentials: 'include',
-        body: JSON.stringify(formData),
-      }));
+        body: formDataToSend,
+      });
 
       if (response.ok) {
         setSuccessMessage('Funcionário cadastrado com sucesso!');
@@ -87,11 +90,10 @@ export default function CadastrarFuncionario() {
           saida: '',
           salario: '',
           cpf: '',
-          cref:'',
+          cref: null,
           telefone: '',
           foto: null,
         });
-
         router.push('/funcionarios');
       } else {
         const errorData = await response.json();
@@ -118,8 +120,8 @@ export default function CadastrarFuncionario() {
 
       {errorMessage && <div className="p-4 mb-4 text-red-700 bg-red-100 rounded">{errorMessage}</div>}
 
-      <form onSubmit={(e) => handleSubmit(e, instrutor)}>
-        {[ 
+      <form onSubmit={handleSubmit}>
+        {[
           { id: 'first_name', label: 'Nome', type: 'text', required: true },
           { id: 'last_name', label: 'Sobrenome', type: 'text', required: true },
           { id: 'email', label: 'Email', type: 'email', required: true },
@@ -137,28 +139,33 @@ export default function CadastrarFuncionario() {
               type={type}
               id={id}
               name={id}
-              value = {String(formData[id as keyof FuncionarioFormData]) || ''}
               onChange={handleInputChange}
               required={required}
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
             />
-            {fieldErrors[id] && (
-              <span className="text-red-600 text-sm">{fieldErrors[id]}</span>
-            )}
+            {fieldErrors[id] && <span className="text-red-600 text-sm">{fieldErrors[id]}</span>}
           </div>
         ))}
 
-        <div className="mb-4">
-          <label htmlFor="instrutor" className='block text-sm font-medium text-gray-700'>
-              Instrutor
+        <div className="mb-4 flex items-center">
+          <label htmlFor="instrutor" className="block text-sm font-medium text-gray-700 mr-2">
+            Instrutor
           </label>
-          <input type="checkbox" name="intrutor" id="instrutor" onChange={handleInstrutorChange} />
+          <input type="checkbox" id="instrutor" checked={instrutor} onChange={handleInstrutorChange} />
         </div>
 
         {instrutor && (
-          <div className='mb-4'>
-              <label htmlFor="cref" className='block text-sm font-medium text-gray-700'>CREF</label>
-              <input type="text" name='cref' id='cref' className='mt-1 block w-full p-2 border border-gray-300 rounded-md' onChange={handleCrefChange} required/>
+          <div className="mb-4">
+            <label htmlFor="cref" className="block text-sm font-medium text-gray-700">CREF</label>
+            <input
+              type="text"
+              name="cref"
+              id="cref"
+              value={formData.cref || ''}
+              onChange={handleCrefChange}
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+              required
+            />
           </div>
         )}
 
@@ -175,6 +182,7 @@ export default function CadastrarFuncionario() {
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
           />
         </div>
+
         <button
           type="submit"
           className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition"

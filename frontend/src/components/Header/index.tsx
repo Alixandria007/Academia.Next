@@ -22,7 +22,6 @@ export const Header = () => {
     const data = await response.json()
 
     if (response.ok){
-      router.push('/login/')
     }
 
     else{

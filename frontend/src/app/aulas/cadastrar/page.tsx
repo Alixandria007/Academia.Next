@@ -35,7 +35,9 @@ const CadastrarAula = () => {
   useEffect(() => {
     const fetchInstrutores = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/funcionario/instrutores/');
+        const response = await fetch('http://127.0.0.1:8000/funcionario?instrutores="True"/',{
+          credentials: 'include'
+        });
 
         if (!response.ok) {
           throw new Error('Erro ao carregar os instrutores.');
@@ -71,6 +73,7 @@ const CadastrarAula = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(dadosAula),
+        credentials: 'include'
       });
 
       if (response.ok) {

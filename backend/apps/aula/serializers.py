@@ -1,6 +1,6 @@
 from rest_framework import serializers
+from ..funcionario.serializers import FuncionarioSerializer
 from .models import Aula, Inscrição, DiaSemana
-from ..funcionario.serializers import InstrutorSerializerAula
 from ..aluno.serializers import AlunoSerializer
 
 class AulaSerializer(serializers.ModelSerializer):
@@ -14,7 +14,7 @@ class DiaSemanaSerializer(serializers.ModelSerializer):
         fields = ['id','nome']
 
 class AulaSerializerGet(serializers.ModelSerializer):
-    instrutor = InstrutorSerializerAula()
+    instrutor = FuncionarioSerializer()
     dias_da_semana = DiaSemanaSerializer(many = True)
     alunos_inscritos = serializers.SerializerMethodField()
 

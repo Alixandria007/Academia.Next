@@ -1,11 +1,17 @@
 "use client"
 
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import Dropdown from '../DropDown';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const DropdownContainer: React.FC<{}> = () => {
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+    const pathname = usePathname();
+
+  useEffect(() => {
+    setOpenDropdown(null);
+  }, [pathname]);
   
     const handleToggle = (id: string) => {
       setOpenDropdown(prevId => (prevId === id ? null : id));

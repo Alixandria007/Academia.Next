@@ -28,9 +28,7 @@ export default function RootLayout({children,}: Readonly<{children: React.ReactN
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       > 
         <AuthComponent>
-          <Header/>
           {children}
-          <Footer/>
         </AuthComponent>
       </body>
     </html>

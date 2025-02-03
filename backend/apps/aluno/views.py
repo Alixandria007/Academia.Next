@@ -8,6 +8,7 @@ from . import models
 from django.http import Http404
 from .serializers import AlunoSerializer, AvaliaçãoFisicaSerializer
 from ..atividade.models import Atividade
+from utils import create_activity
 
 
 # Create your views here.
@@ -27,8 +28,8 @@ class AlunosView(GenericAPIView):
 
         if serializer.is_valid():
             aluno = serializer.save()
-            models.Atividade.objects.create(
-                tipo_acao='cadastro',
+            create_activity(
+                tipo='cadastro',
                 descricao=f"Aluno {serializer.validated_data['first_name']} {serializer.validated_data['last_name']} cadastrado com sucesso!!"
             )
             return Response({'message': 'Aluno criado com sucesso!'}, status=status.HTTP_201_CREATED)
@@ -47,6 +48,10 @@ class AlunoDetailView(APIView):
         serializer = AlunoSerializer(aluno, data = data, partial = True)
         if serializer.is_valid():
             serializer.save()
+            create_activity(
+                tipo = 'atualizacao',
+                descricao = f"Aluno {serializer.validated_data['first_name']} {serializer.validated_data['last_name']} teve os dados atualizados!!"
+                )
             return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
         return Response(f'Error: {serializer.errors}', status=status.HTTP_400_BAD_REQUEST)
     
@@ -54,7 +59,9 @@ class AlunoDetailView(APIView):
         aluno = models.Aluno.objects.filter(pk = id).first()
         
         if aluno:
-            Atividade.objects.create(tipo_acao = 'exclusao', descricao = f'Dados de {aluno.first_name} {aluno.last_name} foram deletados')
+            create_activity(
+                tipo = 'exclusao',
+                descricao = f'Dados de {aluno.first_name} {aluno.last_name} foram deletados')
             aluno.delete()
 
             return Response('Aluno deletado com sucesso!!!', status=status.HTTP_204_NO_CONTENT)
@@ -80,6 +87,10 @@ class AvaliacaoFisicaView(APIView):
         serializer = AvaliaçãoFisicaSerializer(data = data)
         if serializer.is_valid():
             serializer.save()
+            create_activity(
+                tipo = 'cadastro',
+                descricao = f'Avaliação Fisica do aluno {serializer.validated_data['aluno'].first_name} cadastrada com sucesso!'
+            )
             return Response({"detail":"Avaliação cadastrada com sucesso!!"}, status= status.HTTP_201_CREATED)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
