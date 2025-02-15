@@ -7,28 +7,63 @@ interface Plano {
   nome: string;
   valor: number;
   duracao: string;
-  aulas: boolean;
+  atividade_extra: string[]; // Agora aceita múltiplas atividades
+}
+
+interface AtividadeExtra {
+  id: string;
+  descricao: string;
 }
 
 export default function CadastrarPlano() {
   const { id } = useParams();
   const router = useRouter();
+  const API = process.env.NEXT_PUBLIC_API;
+
   const [plano, setPlano] = useState<Plano>({
     nome: '',
     valor: 1,
     duracao: 'Men',
-    aulas: false,
+    atividade_extra: [], 
   });
+
+  const [atividades, setAtividades] = useState<AtividadeExtra[]>([]);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
 
+  useEffect(() => {
+    async function fetchAtividades() {
+      try {
+        const response = await fetch(`${API}/plano/atividade_extra/`, {
+          credentials: 'include'
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setAtividades(data);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar atividades extras:', error);
+      }
+    }
+
+    fetchAtividades();
+  }, []);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    {// @ts-ignore
-    const { name, value, type, checked } = e.target;
+    const { name, value, type } = e.target;
+
     setPlano((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));}
+      [name]: value,
+    }));
+  };
+
+  const handleAtividadeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedOptions = Array.from(e.target.selectedOptions).map((option) => option.value);
+    setPlano((prev) => ({
+      ...prev,
+      atividade_extra: selectedOptions,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,24 +72,24 @@ export default function CadastrarPlano() {
     setSuccessMessage('');
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/plano/`, {
+      const response = await fetch(`${API}/plano/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(plano),
-        credentials: 'include'
+        credentials: 'include',
       });
 
       if (response.ok) {
-        setSuccessMessage('Plano atualizado com sucesso!');
+        setSuccessMessage('Plano cadastrado com sucesso!');
         setTimeout(() => router.push('/planos/'), 2000);
       } else {
         const data = await response.json();
-        setErrorMessage(data.detail || 'Erro ao atualizar plano.');
+        setErrorMessage(data.detail || 'Erro ao cadastrar plano.');
       }
     } catch (error) {
-      setErrorMessage('Erro ao atualizar plano.');
+      setErrorMessage('Erro ao cadastrar plano.');
       console.error(error);
     }
   };
@@ -117,15 +152,22 @@ export default function CadastrarPlano() {
           </select>
         </div>
 
-        <div className="flex items-center gap-4 mt-4">
-          <input
-            type="checkbox"
-            name="aulas"
-            checked={plano.aulas}
-            onChange={handleInputChange}
-            className="w-5 h-5"
-          />
-          <label className="text-gray-700">Aulas Inclusas</label>
+        <div>
+          <label className="block text-gray-700 font-medium">Atividades Extras</label>
+          <select
+            multiple
+            name="atividade_extra"
+            value={plano.atividade_extra}
+            onChange={handleAtividadeChange}
+            className="w-full p-3 border border-gray-300 rounded-lg"
+          >
+            {atividades.map((atividade) => (
+              <option key={atividade.id} value={atividade.id}>
+                {atividade.descricao}
+              </option>
+            ))}
+          </select>
+          <p className="text-sm text-gray-500 mt-1">Segure CTRL (ou CMD no Mac) para selecionar múltiplas atividades.</p>
         </div>
 
         <div className="flex justify-between mt-10">
@@ -133,7 +175,7 @@ export default function CadastrarPlano() {
             type="submit"
             className="p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
           >
-            Atualizar Plano
+            Cadastrar Plano
           </button>
 
           <button

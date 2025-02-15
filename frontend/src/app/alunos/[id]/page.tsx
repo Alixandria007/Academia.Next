@@ -24,12 +24,13 @@ export default function AlunoDetalhe() {
   const { id } = useParams(); 
   const [aluno, setAluno] = useState<Aluno | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [avaliacoes, setAvaliacoes] = useState<AvaliacaoFisica[]>([]); 
+  const [avaliacoes, setAvaliacoes] = useState<AvaliacaoFisica[]>([]);
+  const API = process.env.NEXT_PUBLIC_API 
   const router = useRouter();
 
   const fetchAluno = async (id: string) => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/aluno/${id}`,{
+      const response = await fetch(`${API}/aluno/${id}`,{
         headers:{
           'Content-Type': 'application/json',
         },

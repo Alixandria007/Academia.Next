@@ -18,12 +18,13 @@ export default function UpdateAluno() {
   const [aluno, setAluno] = useState<Aluno | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const API = process.env.NEXT_PUBLIC_API
   const router = useRouter();
 
   // Função para buscar o aluno
   const fetchAluno = async (id: string) => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/aluno/${id}/`);
+      const response = await fetch(`${API}/aluno/${id}/`);
       if (!response.ok) {
         throw new Error('Erro ao carregar dados do aluno');
       }
@@ -46,7 +47,7 @@ export default function UpdateAluno() {
     e.preventDefault();
 
     if (aluno) {
-      const response = await fetch(`http://127.0.0.1:8000/aluno/${id}/`, {
+      const response = await fetch(`${API}/aluno/${id}/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

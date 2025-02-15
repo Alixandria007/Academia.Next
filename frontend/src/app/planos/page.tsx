@@ -2,25 +2,39 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Consultar from '@/components/Consultas';
+import ConfirmScreen from '@/components/ConfirmScreen';
+import { FiEdit, FiTrash2 } from 'react-icons/fi';
 
 interface Plano {
   id: number;
   nome: string;
   valor: number;
   duracao: string;
-  aulas: boolean;
 }
 
 export default function PlanosConsulta() {
   const [planos, setPlanos] = useState<Plano[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [onConfirmScreen, setOnConfirmScreen] = useState<boolean>(false);
+  const [selectedPlanoId, setSelectedPlanoId] = useState<number | null>(null);
+
   const router = useRouter();
+  const API = process.env.NEXT_PUBLIC_API;
 
   useEffect(() => {
+    if (!API) {
+      setErrorMessage('Erro: API não definida.');
+      setIsLoading(false);
+      return;
+    }
+
     const fetchPlanos = async () => {
+      setIsLoading(true);
       try {
-        const response = await fetch('http://127.0.0.1:8000/plano/', {
-          credentials:'include'
+        const response = await fetch(`${API}/plano/`, {
+          credentials: 'include',
         });
 
         if (response.ok) {
@@ -32,54 +46,112 @@ export default function PlanosConsulta() {
       } catch (error) {
         setErrorMessage('Erro ao carregar os planos.');
         console.error(error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchPlanos();
-  }, []);
+  }, [API]);
 
-  if (errorMessage) {
-    setTimeout(() => {
-      setErrorMessage('');
-    }, 5000);
+  useEffect(() => {
+    if (errorMessage) {
+      const timer = setTimeout(() => {
+        setErrorMessage('');
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [errorMessage]);
+
+  const formatReal = (valor:number) => {
+    return `R$${valor.toFixed(2)}`
   }
 
-  return (
-    <div className="min-h-screen max-w-5xl mx-auto p-8 my-3 space-y-6 bg-white shadow-lg rounded-lg mt-10">
-      <h1 className="text-4xl font-extrabold text-center text-blue-600 mb-8">Planos Disponíveis</h1>
+  const headers: { key: keyof Plano; label: string; href?: boolean; format?: Function }[] = [
+    { key: 'id', label: 'ID', href: true },
+    { key: 'nome', label: 'Nome' },
+    { key: 'duracao', label: 'Duração' },
+    { key: 'valor', label: 'Valor', format: formatReal },
+  ];
 
+  const filterPlanos = (plano: Plano, searchTerm: string) => {
+    return (
+      plano.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      plano.duracao.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      plano.valor.toString().includes(searchTerm)
+    );
+  };
+
+  const handleEdit = (id: number) => {
+    router.push(`/plano/${id}/atualizar`);
+  };
+
+  const handleDelete = async () => {
+    if (!selectedPlanoId) return;
+
+    try {
+      const response = await fetch(`${API}/plano/${selectedPlanoId}/`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        setPlanos(planos.filter((plano) => plano.id !== selectedPlanoId));
+      } else {
+        console.error('Erro ao excluir o plano.');
+      }
+    } catch (error) {
+      console.error('Erro ao excluir o plano:', error);
+    } finally {
+      setOnConfirmScreen(false);
+      setSelectedPlanoId(null);
+    }
+  };
+
+  if (isLoading) return <p className="text-center mt-6">Carregando...</p>;
+
+  return (
+    <div className="min-h-screen bg-gray-100 p-6">
       {errorMessage && (
-        <div className="p-4 mb-4 text-red-700 bg-red-100 text-center rounded">{errorMessage}</div>
+        <div className="p-4 mb-4 text-red-700 bg-red-100 text-center rounded">
+          {errorMessage}
+        </div>
       )}
 
-      {planos.length > 0 ? (
-        <div className="space-y-4">
-          {planos.map((plano) => (
-            <div
-              key={plano.id}
-              className="flex justify-between items-center p-6 bg-gray-100 hover:bg-gray-200 rounded-lg shadow-md transition"
+      <Consultar
+        data={planos}
+        title="Consultar Planos"
+        headers={headers}
+        filterFunction={filterPlanos}
+        placeholder="Buscar por nome ou duração"
+        url_add="cadastrar"
+        actions={(item: Plano) => (
+          <div className="flex justify-center items-center space-x-2">
+            <button
+              onClick={() => handleEdit(item.id)}
+              className="text-blue-500 hover:text-blue-700"
             >
-              <div>
-                <h2 className="text-2xl font-semibold text-gray-800">{plano.nome}</h2>
-                <p className="text-gray-600 mt-1">
-                  {plano.duracao} | {plano.aulas ? 'Inclui Aulas' : 'Sem Aulas'}
-                </p>
-              </div>
+              <FiEdit />
+            </button>
+            <button
+              onClick={() => {
+                setSelectedPlanoId(item.id);
+                setOnConfirmScreen(true);
+              }}
+              className="text-red-500 hover:text-red-700"
+            >
+              <FiTrash2 />
+            </button>
+          </div>
+        )}
+      />
 
-              <div className="text-right">
-                <p className="text-3xl font-bold text-blue-600">R$ {plano.valor}</p>
-                <button
-                  onClick={() => router.push(`/planos/${plano.id}/`)}
-                  className="mt-3 p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-                >
-                  Ver Detalhes
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-gray-600 text-center">Nenhum plano disponível.</p>
+      {onConfirmScreen && (
+        <ConfirmScreen
+          onConfirm={handleDelete}
+          onClose={() => setOnConfirmScreen(false)}
+        />
       )}
     </div>
   );

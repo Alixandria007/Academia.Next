@@ -22,6 +22,7 @@ const DetalhesFuncionario: React.FC = () => {
   const [funcionario, setFuncionario] = useState<Funcionario | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
+  const API = process.env.NEXT_PUBLIC_API
   const { id } = useParams(); 
 
   useEffect(() => {
@@ -32,7 +33,7 @@ const DetalhesFuncionario: React.FC = () => {
 
     const fetchFuncionario = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/funcionario/${id}/`,{
+        const response = await fetch(`${API}/funcionario/${id}/`,{
           credentials:'include'
         }
         );
@@ -56,7 +57,7 @@ const DetalhesFuncionario: React.FC = () => {
   const handleDelete = async () => {
     if (confirm('Tem certeza que deseja excluir este funcionário?')) {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/funcionario/${id}/`, {
+        const response = await fetch(`${API}/funcionario/${id}/`, {
           method: 'DELETE',
         });
         if (response.ok) {

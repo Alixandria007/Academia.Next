@@ -20,6 +20,7 @@ interface FuncionarioFormData {
 export default function AtualizarFuncionario() {
   const router = useRouter();
   const { id } = useParams(); 
+  const API = process.env.NEXT_PUBLIC_API
 
   const [formData, setFormData] = useState<FuncionarioFormData>({
     first_name: '',
@@ -43,7 +44,7 @@ export default function AtualizarFuncionario() {
   useEffect(() => {
     const fetchFuncionario = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/funcionario/${id}/`);
+        const response = await fetch(`${API}/funcionario/${id}/`);
         if (response.ok) {
           const data = await response.json();
 
@@ -90,7 +91,7 @@ export default function AtualizarFuncionario() {
     });
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/funcionario/${id}/`, {
+      const response = await fetch(`${API}/funcionario/${id}/`, {
         method: 'PATCH',
         body: dataToSend,
       });

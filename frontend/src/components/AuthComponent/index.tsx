@@ -1,71 +1,77 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Login from '../Login';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Header } from '../Header';
 import Footer from '../Footer';
+import LoginPage from '../Login';
 
-export const revalidate = 10;
+async function verifyTokens() {
+  let API = process.env.NEXT_PUBLIC_API;
+  
+  try {
+    const response = await fetch(`${API}/api/token/verify/`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const refreshResponse = await fetch(`${API}/api/token/refresh/`, {
+        method: 'POST',
+        credentials: 'include', 
+      });
+
+      if (!refreshResponse.ok) {
+        return false;  
+      }
+    }
+
+    return true;  
+  } catch (error) {
+    console.error('Erro ao verificar o token:', error);
+    return false;
+  }
+}
 
 export default function AuthComponent({ children }: { children: React.ReactNode }) {
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isAutheticated, setIsAuthenticated] = useState<boolean>(true)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    const verifyTokens = async () => {
-      const refreshAccessToken = async () => {
-        try {
-          const response = await fetch('http://127.0.0.1:8000/api/token/refresh/', {
-            method: 'POST',
-            credentials: 'include',
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-          } else {
-            console.warn('Erro ao atualizar o token, redirecionando para login.');
-            setIsAuthenticated(false)
-          }
-        } catch (error) {
-          console.error('Erro ao tentar atualizar o token:', error);
-          setIsAuthenticated(false)
-        }
-      };
-
-      const checkAccessToken = async () => {
-        try {
-          const response = await fetch('http://127.0.0.1:8000/api/token/verify/', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-          },
-            credentials: 'include',
-          });
-
-          if (!response.ok) {
-            console.warn('Token inválido, tentando atualizar...');
-            await refreshAccessToken();
-          }
-        } catch (error) {
-          console.error('Erro ao verificar o token:', error);
-          setIsAuthenticated(false)
-          }
-      };
-
-      await checkAccessToken();
-      setIsLoading(false);
+    const checkAuth = async () => {
+      const isValid = await verifyTokens();
+      setIsAuthenticated(isValid);
+      
+      if (isValid) {
+        router.refresh(); 
+      }
     };
 
-    verifyTokens();
-  }, []);
+    checkAuth();
 
-  if (isLoading) return null;
+    const interval = setInterval(() => {
+      checkAuth(); 
+    }, 10000); 
 
-  if (!isAutheticated) return <><Login onLoginSuccess={() => setIsAuthenticated(true)}/></>
+    return () => clearInterval(interval);
+  }, []); 
 
-  return (<>
-            <Header/>
-            {children}
-            <Footer/>
-          </>);
+  if (isAuthenticated === null) {
+    return <div>Carregando...</div>;
+  }
+
+  if (!isAuthenticated) {
+    return <LoginPage />;  
+  }
+
+  return (
+    <>
+      <Header />
+      {children}  
+      <Footer />
+    </>
+  );
 }

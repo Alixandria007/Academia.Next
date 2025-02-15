@@ -17,10 +17,12 @@ export default function PlanoDetalhes() {
   const [plano, setPlano] = useState<Plano | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>('');
 
+  const API = process.env.NEXT_PUBLIC_API
+
   useEffect(() => {
     const fetchPlanoDetails = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/plano/${id}/`, {
+        const response = await fetch(`${API}/plano/${id}/`, {
           credentials:'include'
         });
 
@@ -51,7 +53,7 @@ export default function PlanoDetalhes() {
 
   const handleDelete = async () => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/plano/${id}/`, {
+      const response = await fetch(`${API}/plano/${id}/`, {
         method: 'DELETE',
         credentials: 'include'
       });

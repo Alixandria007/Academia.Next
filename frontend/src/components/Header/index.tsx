@@ -1,20 +1,20 @@
 'use client'
 
-import Dropdown from "@/components/DropDown"
-import DropdownContainer from "../DropdownContainer";
+import Dropdown from "@/components/Option"
+import DropdownContainer from "../Options";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { MouseEvent } from "react";
-//@ts-ignore
-import Cookies from 'js-cookie';
+import Options from "../Options";
 
 export const Header = () => {
   const router = useRouter()
+  const API = process.env.NEXT_PUBLIC_API
 
   const handleLogout = async(e:MouseEvent) => {
     e.preventDefault()
     try{
-    const response = await fetch('http://127.0.0.1:8000/logout/',{
+    const response = await fetch(`${API}/logout/`,{
       method: 'POST',
       credentials: 'include'
     })
@@ -51,7 +51,7 @@ export const Header = () => {
         </div>
 
         <div className="hidden lg:flex lg:gap-x-12">
-          <DropdownContainer />
+          <Options />
         </div>
 
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">

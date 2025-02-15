@@ -5,6 +5,7 @@ import Consultar from '@/components/Consultas';
 import { FiEdit, FiTrash2 } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
 import ConfirmScreen from '@/components/ConfirmScreen';
+import { formatPhone } from '@/utils/formatações';
 
 interface Funcionarios {
   id: number;
@@ -15,18 +16,19 @@ interface Funcionarios {
   cref?: string | null
 }
 
-const ConsultarAlunos: React.FC = () => {
+const ConsultarFuncionarios: React.FC = () => {
   const [funcionarios, setFuncionarios] = useState<Funcionarios[] | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [onConfirmScreen, setOnConfirmScreen] = useState<boolean>(false)
   const [selectedAlunoId, setSelectedAlunoId] = useState<number | null>(null);
+  const API = process.env.NEXT_PUBLIC_API
   const router = useRouter()
   
     useEffect(() => {
       const FetchFuncionarios: Function = async () => {
         setIsLoading(true)
         try{
-          const response = await fetch('http://127.0.0.1:8000/funcionario/',{
+          const response = await fetch(`${API}/funcionario/?cref_boolean=True`,{
             headers:{
               'Content-Type': 'application/json',
             },
@@ -55,11 +57,11 @@ const ConsultarAlunos: React.FC = () => {
       FetchFuncionarios();
     }, []);
 
-  const headers: { key: keyof Funcionarios; label: string; href?: boolean }[] = [
+  const headers: { key: keyof Funcionarios; key2?: keyof Funcionarios; label: string; href?: boolean, format?: Function }[] = [
     { key: 'id', label: 'ID', href: true },
-    { key: 'first_name', label: 'Nome' },
-    { key: 'last_name', label: 'Sobrenome' },
-    { key: 'cpf', label: 'CPF' },
+    { key: 'first_name', key2: 'last_name', label: 'Nome Completo' },
+    { key: 'telefone', label: 'Telefone', format: formatPhone },
+    { key: 'cref', label: 'Instrutor'}
   ];
 
   const filterFuncionarios = (funcionarios: Funcionarios, searchTerm: string) => {
@@ -76,7 +78,7 @@ const ConsultarAlunos: React.FC = () => {
 
   const handleDelete = async (id: number) => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/funcionario/${id}/`, {
+        const response = await fetch(`${API}/funcionario/${id}/`, {
           method: 'DELETE',
           credentials: 'include'
         });
@@ -104,6 +106,7 @@ const ConsultarAlunos: React.FC = () => {
         headers={headers}
         filterFunction={filterFuncionarios}
         placeholder="Buscar por nome ou cpf"
+        url_add = 'cadastrar'
         actions={(item: Funcionarios) => (
           <div className="flex justify-center items-center space-x-2">
             <button
@@ -134,4 +137,4 @@ const ConsultarAlunos: React.FC = () => {
   );
 };
 
-export default ConsultarAlunos;
+export default ConsultarFuncionarios;

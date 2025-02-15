@@ -31,11 +31,12 @@ const CadastrarAula = () => {
   const [successMessage, setSuccessMessage] = useState<string>('');
 
   const router = useRouter();
+  const API = process.env.NEXT_PUBLIC_API
 
   useEffect(() => {
     const fetchInstrutores = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/funcionario?instrutores="True"/',{
+        const response = await fetch(`${API}/funcionario?instrutores="True"/`,{
           credentials: 'include'
         });
 
@@ -67,7 +68,7 @@ const CadastrarAula = () => {
     };
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/aula/', {
+      const response = await fetch(`${API}/aula/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

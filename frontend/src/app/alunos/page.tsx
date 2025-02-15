@@ -22,13 +22,14 @@ const ConsultarAlunos: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [onConfirmScreen, setOnConfirmScreen] = useState<boolean>(false)
   const [selectedAlunoId, setSelectedAlunoId] = useState<number | null>(null);
+  const API = process.env.NEXT_PUBLIC_API
   const router = useRouter()
   
   useEffect(() => {
-    const FetchAlunos: Function = async () => {
+    const FetchAlunos = async () => {
       setIsLoading(true)
       try{
-        const response = await fetch('http://127.0.0.1:8000/aluno',{
+        const response = await fetch(`${API}/aluno`,{
           credentials: 'include',
           headers:{
             'Content-Type': 'application/json',
@@ -57,11 +58,10 @@ const ConsultarAlunos: React.FC = () => {
     FetchAlunos();
   }, []);
 
-  const headers: { key: keyof Aluno; label: string; href?: boolean }[] = [
+  const headers: { key: keyof Aluno; key2?: keyof Aluno , label: string; href?: boolean }[] = [
     { key: 'id', label: 'ID', href: true },
-    { key: 'first_name', label: 'Nome' },
-    { key: 'last_name', label: 'Sobrenome' },
-    { key: 'cpf', label: 'CPF' },
+    { key: 'first_name', key2:'last_name', label: 'Nome Completo' },
+    { key: 'telefone', label: 'Telefone' },
     { key: 'ativo', label: 'Status' },
   ];
 
@@ -79,7 +79,7 @@ const ConsultarAlunos: React.FC = () => {
 
   const handleDelete = async (id: number) => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/aluno/${id}/`, {
+        const response = await fetch(`${API}/aluno/${id}/`, {
           method: 'DELETE',
           credentials: 'include'
         });
@@ -104,6 +104,7 @@ const ConsultarAlunos: React.FC = () => {
         headers={headers}
         filterFunction={filterAlunos}
         placeholder="Buscar por nome ou matrícula"
+        url_add='cadastrar'
         actions={(item: Aluno) => (
           <div className="flex justify-center items-center space-x-2">
             <button

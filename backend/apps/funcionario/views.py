@@ -1,4 +1,6 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, get_list_or_404
+from django.db.models import F
+from django.db.models.functions import Coalesce
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -10,9 +12,25 @@ from utils import create_activity
 
 class FuncionarioView(APIView):
     def get(self, request):
+        cref_boolean = request.GET.get('cref_boolean')
         instrutores = request.GET.get('instrutores')
-        funcionarios = models.Funcionario.objects.filter(cref__isnull = False) if instrutores else models.Funcionario.objects.all()
-        serializer = serializers.FuncionarioSerializer(funcionarios, many=True)
+
+        funcionarios = (
+            get_list_or_404(
+                models.Funcionario.objects.order_by('first_name'),
+                cref__isnull=False
+            ) if instrutores else 
+            get_list_or_404(
+                models.Funcionario.objects.order_by(
+                    Coalesce(F('cref'), 0).desc(),  
+                    'first_name'  
+                )
+            )
+        )
+
+        serializer_class = serializers.FuncionarioSerializerCrefBoolean if cref_boolean else serializers.FuncionarioSerializer
+        serializer = serializer_class(funcionarios, many=True)
+
         return Response(serializer.data)
     
     def post(self,request):

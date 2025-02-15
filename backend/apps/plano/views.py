@@ -100,3 +100,10 @@ class AssinaturaView(APIView):
             return Response({"detail":"Assinatura cadastrada com sucesso!!"}, status= status.HTTP_201_CREATED)
         
         return Response({"detail":"Erro ao cadastrar aula!!"}, status=status.HTTP_400_BAD_REQUEST)
+    
+class AtividadeExtraView(APIView):
+    def get(self, request):
+        model = get_list_or_404(models.AtividadeExtra)
+        serializer = serializers.AtividadeExtraSerializer(model, many = True)
+
+        return Response(serializer.data)

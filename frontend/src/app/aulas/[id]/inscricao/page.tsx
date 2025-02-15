@@ -20,10 +20,13 @@ export default function InscricaoAula() {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
 
+  const API = process.env.NEXT_PUBLIC_API
+
+
   useEffect(() => {
     const fetchAlunos = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/aluno/',{
+        const response = await fetch(`${API}/aluno/`,{
           credentials: 'include'
         });
 
@@ -62,7 +65,7 @@ export default function InscricaoAula() {
     }
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/aula/inscricao/', {
+      const response = await fetch(`${API}/aula/inscricao/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

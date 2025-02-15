@@ -37,6 +37,7 @@ const AtualizarAula = () => {
 
   const router = useRouter();
   const { id } = useParams();
+  const API = process.env.NEXT_PUBLIC_API
 
   const diasDaSemanaOpcoes: DiaSemana[] = [
     { id: 1, nome: 'Segunda-feira' },
@@ -51,7 +52,7 @@ const AtualizarAula = () => {
   useEffect(() => {
     const fetchInstrutores = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/funcionario/instrutores/', {
+        const response = await fetch(`${API}/funcionario/instrutores/`, {
           credentials: 'include'
         });
         if (!response.ok) {
@@ -72,7 +73,7 @@ const AtualizarAula = () => {
       try {
         if (!id) return;
 
-        const response = await fetch(`http://127.0.0.1:8000/aula/${id}/`, {
+        const response = await fetch(`${API}/aula/${id}/`, {
           credentials: 'include'
         });
 
@@ -114,7 +115,7 @@ const AtualizarAula = () => {
     };
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/aula/${id}/`, {
+      const response = await fetch(`${API}/aula/${id}/`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

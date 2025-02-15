@@ -13,6 +13,7 @@ interface AlunoFormData {
 }
 
 export default function CadastrarAluno() {
+  const API = process.env.NEXT_PUBLIC_API;
   const router = useRouter();
 
   const [formData, setFormData] = useState<AlunoFormData>({
@@ -28,27 +29,35 @@ export default function CadastrarAluno() {
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+
+    let formattedValue = value;
+    if (name === 'cpf') {
+      formattedValue = formatCPF(value); // Formata o CPF
+    } else if (name === 'telefone') {
+      formattedValue = formatPhone(value); // Formata o telefone
+    }
+
+    setFormData({ ...formData, [name]: formattedValue });
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
       const FetchCreateAluno = async () => {
-        const response = await fetch('http://127.0.0.1:8000/aluno/', {
-            method:'POST',
-            headers: {
-                'Content-Type': 'application/json',
-              },
-              credentials:'include',
-            body: JSON.stringify(formData),
-        })
-      }
+        const response = await fetch(`${API}/aluno/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(formData),
+        });
+      };
 
-      FetchCreateAluno()
+      FetchCreateAluno();
       console.log('Dados enviados:', formData);
       setSuccessMessage('Aluno cadastrado com sucesso!');
-      
+
       setFormData({
         first_name: '',
         last_name: '',
@@ -62,6 +71,18 @@ export default function CadastrarAluno() {
     } catch (error) {
       console.error('Erro ao cadastrar aluno:', error);
     }
+  };
+
+  const formatCPF = (value: string): string => {
+    return value
+      .replace(/\D/g, '') 
+      .replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, '$1.$2.$3-$4'); // Aplica a máscara de CPF
+  };
+  
+  const formatPhone = (value: string): string => {
+    return value
+      .replace(/\D/g, '') 
+      .replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3'); 
   };
 
   return (
@@ -125,6 +146,7 @@ export default function CadastrarAluno() {
             name="cpf"
             value={formData.cpf}
             onChange={handleInputChange}
+            maxLength={14}
             required
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           />
@@ -139,6 +161,7 @@ export default function CadastrarAluno() {
             name="telefone"
             value={formData.telefone}
             onChange={handleInputChange}
+            maxLength={11}
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           />
         </div>

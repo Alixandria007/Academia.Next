@@ -36,10 +36,13 @@ export default function AulaDetalhes() {
   const [inscricoes, setInscricoes] = useState<Inscricao[]>([]);
   const [errorMessage, setErrorMessage] = useState<string>('');
 
+  const API = process.env.NEXT_PUBLIC_API
+
+
   useEffect(() => {
     const fetchAulaDetails = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/aula/${id}/`,
+        const response = await fetch(`${API}/aula/${id}/`,
           {credentials: 'include'}
         );
 
@@ -57,7 +60,7 @@ export default function AulaDetalhes() {
 
     const fetchInscricoes = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/aula/${id}/inscricao/`,
+        const response = await fetch(`${API}/aula/${id}/inscricao/`,
           {credentials:'include'}
         );
 
@@ -90,7 +93,7 @@ export default function AulaDetalhes() {
 
   const HandleDelete = async () => {
     try{
-    const response = await fetch(`http://127.0.0.1:8000/aula/${id}/`, {
+    const response = await fetch(`${API}/aula/${id}/`, {
       method: "DELETE",
       credentials: 'include'
     })

@@ -18,9 +18,11 @@ const Home = () => {
 
 
   useEffect(() => {
+    let API = process.env.NEXT_PUBLIC_API
+
     const fetchActivity = async () => {
       try{
-      const response = await fetch('http://127.0.0.1:8000/atividade/?limit=3',{
+      const response = await fetch(`${API}/atividade/?limit=3`,{
         credentials: 'include'
       })
       const data = await response.json()
@@ -41,7 +43,7 @@ const Home = () => {
 
     const fetchDashboard = async () => {
       try{
-        const response = await fetch('http://127.0.0.1:8000/atividade/dashboard/',{
+        const response = await fetch(`${API}/atividade/dashboard/`,{
           credentials: 'include'
         })
         const data = await response.json()
@@ -65,7 +67,7 @@ const Home = () => {
 
     const fetchActivityChart = async () => {
       try{
-        const response = await fetch('http://127.0.0.1:8000/atividade/chart/',{
+        const response = await fetch(`${API}/atividade/chart/`,{
           method: 'GET',
           credentials: 'include'
         })

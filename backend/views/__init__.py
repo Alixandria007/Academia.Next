@@ -31,6 +31,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             return Response({"detail": "Erro ao gerar os tokens."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         response = Response({"detail": "Login bem-sucedido."}, status=status.HTTP_200_OK)
+
         response.set_cookie(
             key='access_token',
             value=access_token,

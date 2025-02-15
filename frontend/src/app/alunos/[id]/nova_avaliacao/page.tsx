@@ -14,6 +14,7 @@ interface AvaliacaoFisicaFormData {
 
 export default function CadastrarAvaliacaoFisica() {
   const router = useRouter();
+  const API = process.env.NEXT_PUBLIC_API
   const {id} = useParams()
 
   const [formData, setFormData] = useState<AvaliacaoFisicaFormData>({
@@ -36,7 +37,7 @@ export default function CadastrarAvaliacaoFisica() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://127.0.0.1:8000/aluno/avaliacao_fisica/', {
+      const response = await fetch(`${API}/aluno/avaliacao_fisica/`, {
         method: 'POST',
         headers:{
           'Content-Type': 'application/json',

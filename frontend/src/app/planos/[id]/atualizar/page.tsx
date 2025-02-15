@@ -22,10 +22,12 @@ export default function AtualizarPlano() {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
 
+  const API = process.env.NEXT_PUBLIC_API
+
   useEffect(() => {
     const fetchPlanoDetails = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/plano/${id}/`);
+        const response = await fetch(`${API}/plano/${id}/`);
 
         if (response.ok) {
           const data = await response.json();
@@ -57,7 +59,7 @@ export default function AtualizarPlano() {
     setSuccessMessage('');
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/plano/${id}/`, {
+      const response = await fetch(`${API}/plano/${id}/`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

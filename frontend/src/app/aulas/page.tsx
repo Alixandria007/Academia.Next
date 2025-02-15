@@ -1,7 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import Consultar from '@/components/Consultas';
+import { FiEdit, FiTrash2 } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
+import ConfirmScreen from '@/components/ConfirmScreen';
 
 interface Aula {
   id: number;
@@ -12,114 +15,109 @@ interface Aula {
   instrutor: { id: number; first_name: string; last_name: string; foto?: string };
 }
 
-export default function Aulas() {
-  const [aulas, setAulas] = useState<Aula[]>([]);
-  const [filteredAulas, setFilteredAulas] = useState<Aula[]>([]);
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [errorMessage, setErrorMessage] = useState<string>('');
+const ConsultarAulas: React.FC = () => {
+  const [aulas, setAulas] = useState<Aula[] | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [onConfirmScreen, setOnConfirmScreen] = useState<boolean>(false);
+  const [selectedAulaId, setSelectedAulaId] = useState<number | null>(null);
+  const API = process.env.NEXT_PUBLIC_API;
   const router = useRouter();
 
   useEffect(() => {
     const fetchAulas = async () => {
+      setIsLoading(true);
       try {
-        const response = await fetch('http://127.0.0.1:8000/aula/', {
-          credentials: 'include'
+        const response = await fetch(`${API}/aula/`, {
+          credentials: 'include',
         });
+        const data = await response.json();
 
         if (response.ok) {
-          const data = await response.json();
           setAulas(data);
-          setFilteredAulas(data);
         } else {
-          setErrorMessage('Erro ao carregar a lista de aulas.');
+          console.error('Erro ao carregar aulas:', data.detail);
         }
       } catch (error) {
-        setErrorMessage('Erro ao carregar a lista de aulas.');
-        console.error(error);
+        console.error('Erro ao carregar aulas:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchAulas();
   }, []);
 
-  const handleNavigateToDetails = (id: number) => {
-    router.push(`/aulas/${id}`);
-  };
+  const headers: { key: keyof Aula; label: string; href?: boolean }[] = [
+    { key: 'id', label: 'ID', href: true },
+    { key: 'nome', label: 'Nome' },
+    { key: 'horario_inicial', label: 'Início' },
+    { key: 'horario_final', label: 'Fim' },
+    { key: 'vagas', label: 'Vagas' },
+  ];
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const search = event.target.value.toLowerCase();
-    setSearchTerm(search);
-
-    const filtered = aulas.filter((aula) =>
-      aula.nome.toLowerCase().includes(search) ||
-      aula.instrutor.first_name.toLowerCase().includes(search) ||
-      aula.instrutor.last_name.toLowerCase().includes(search) ||
-      aula.horario_inicial.includes(search) ||
-      aula.horario_final.includes(search)
+  const filterAulas = (aula: Aula, searchTerm: string) => {
+    return (
+      aula.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      aula.instrutor.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      aula.instrutor.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      aula.horario_inicial.includes(searchTerm) ||
+      aula.horario_final.includes(searchTerm)
     );
-
-    setFilteredAulas(filtered);
   };
+
+  const handleEdit = (id: number) => {
+    router.push(`/aulas/${id}/editar`);
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      const response = await fetch(`${API}/aula/${id}/`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (response.ok) {
+        setAulas(aulas?.filter((aula) => aula.id !== id) || null);
+      } else {
+        console.error('Erro ao excluir a aula.');
+      }
+    } catch (error) {
+      console.error('Erro ao excluir a aula:', error);
+    } finally {
+      setOnConfirmScreen(false);
+    }
+  };
+
+  if (isLoading) return null;
 
   return (
-    <div className='min-h-screen'>
-      <div className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-md">
-        <h1 className="text-3xl font-bold mb-6 text-center">Lista de Aulas</h1>
-
-        {errorMessage && (
-          <div className="p-4 mb-4 text-red-700 bg-red-100 rounded">{errorMessage}</div>
+    <div className="min-h-screen bg-gray-100 p-6">
+      <Consultar
+        data={aulas || []}
+        title="Consultar Aulas"
+        headers={headers}
+        filterFunction={filterAulas}
+        placeholder="Buscar por nome, instrutor ou horário"
+        url_add="cadastrar"
+        actions={(item: Aula) => (
+          <div className="flex justify-center items-center space-x-2">
+            <button onClick={() => handleEdit(item.id)} className="text-blue-500 hover:text-blue-700">
+              <FiEdit />
+            </button>
+            <button onClick={() => { setSelectedAulaId(item.id); setOnConfirmScreen(true); }} className="text-red-500 hover:text-red-700">
+              <FiTrash2 />
+            </button>
+          </div>
         )}
+      />
 
-        <div className="mb-6">
-          <input
-            type="text"
-            className="w-full p-2 border border-gray-300 rounded-md"
-            placeholder="Buscar por nome, instrutor ou horário"
-            value={searchTerm}
-            onChange={handleSearchChange}
-          />
-        </div>
-
-        <ul>
-          {filteredAulas.length > 0 ? (
-            filteredAulas.map((aula) => (
-              <li
-                key={aula.id}
-                className="p-4 mb-4 border rounded-md shadow-sm flex items-center hover:bg-gray-100 transition cursor-pointer"
-                onClick={() => handleNavigateToDetails(aula.id)}
-              >
-                <div className="flex-shrink-0 mr-4">
-                  {aula.instrutor?.foto ? (
-                    <img
-                      src={`http://127.0.0.1:8000/${aula.instrutor.foto}`}
-                      alt={`${aula.instrutor?.first_name} ${aula.instrutor?.last_name}`}
-                      className="w-16 h-16 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center">
-                      <span className="text-gray-500 text-center">Sem Foto</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex-1">
-                  <p className="text-lg font-semibold">{aula.nome}</p>
-                  <p className="text-gray-600">{`${aula.instrutor?.first_name} ${aula.instrutor?.last_name}`}</p>
-                  <p className="text-sm text-gray-700">
-                    <span className="font-medium">Horário:</span> {`${aula.horario_inicial} - ${aula.horario_final}`}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <span className="font-medium">Vagas:</span> {aula.vagas}
-                  </p>
-                </div>
-                <span className="text-blue-500 font-medium">Ver Detalhes →</span>
-              </li>
-            ))
-          ) : (
-            <p className="text-gray-600 text-center">Nenhuma aula encontrada.</p>
-          )}
-        </ul>
-      </div>
+      {onConfirmScreen && (
+        <ConfirmScreen
+          onConfirm={() => handleDelete(Number(selectedAulaId))}
+          onClose={() => setOnConfirmScreen(false)}
+        />
+      )}
     </div>
   );
-}
+};
+
+export default ConsultarAulas;

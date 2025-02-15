@@ -19,11 +19,12 @@ export default function CriarAssinatura() {
   const [valor, setValor] = useState<number | null>(null)
   const [duracao, setDuracao] = useState<string>('')
   const [successMessage, setSuccessMessage] = useState<string>('');
+  const API = process.env.NEXT_PUBLIC_API
 
   useState(() => {
     const fetchPlanos = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/plano/',{
+        const response = await fetch(`${API}/plano/`,{
           credentials:'include'
         });
         if (response.ok) {
@@ -46,7 +47,7 @@ export default function CriarAssinatura() {
     }
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/plano/assinatura/', {
+      const response = await fetch(`${API}/plano/assinatura`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
