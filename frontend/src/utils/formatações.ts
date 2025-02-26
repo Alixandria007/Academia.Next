@@ -1,3 +1,7 @@
+export const capitalize = (str:string) => {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export const formatarCREF = (value: string) => {
     const digitsAndLetters = value.replace(/[^0-9A-Za-z]/g, '');
   

@@ -37,7 +37,7 @@ async function verifyTokens() {
 }
 
 export default function AuthComponent({ children }: { children: React.ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -60,6 +60,7 @@ export default function AuthComponent({ children }: { children: React.ReactNode 
   }, []); 
 
   if (isAuthenticated === null) {
+    
     return <div>Carregando...</div>;
   }
 

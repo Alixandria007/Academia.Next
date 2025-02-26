@@ -1,116 +1,62 @@
 'use client'
 
+import React, { useEffect, useState } from 'react';
 import ActivityChart from '@/components/ActivityChart';
 import DashboardCards from '@/components/DashboardCards';
 import { Header } from '@/components/Header';
 import QuickActions from '@/components/QuickActions';
 import RecentActivities from '@/components/RecentActivities';
-import React, { useEffect, useState } from 'react';
-
 
 const Home = () => {
-  const [activities, SetActivities] = useState([])
-  const [chartData, setChartData] = useState([])
-  const [alunos, setAlunos] = useState<number>(0)
-  const [instrutores, setInstrutores] = useState<number>(0)
-  const [aulas, setAulas] = useState<number>(0)
-  const [planos, setPlanos] = useState<number>(1)
-
+  const [activities, setActivities] = useState([]);
+  const [chartData, setChartData] = useState([]);
+  const [alunos, setAlunos] = useState<number>(0);
+  const [instrutores, setInstrutores] = useState<number>(0);
+  const [aulas, setAulas] = useState<number>(0);
+  const [planos, setPlanos] = useState<number>(1);
 
   useEffect(() => {
-    let API = process.env.NEXT_PUBLIC_API
+    const API = process.env.NEXT_PUBLIC_API;
 
-    const fetchActivity = async () => {
-      try{
-      const response = await fetch(`${API}/atividade/?limit=3`,{
-        credentials: 'include'
-      })
-      const data = await response.json()
-
-      if (response.ok){
-        SetActivities(data)
-      }
-
-      else{
-        console.error(data.detail)
-      }
-    }
-
-    catch{
-      console.error("Erro ao buscar os dados das Atividades!!")
-    }
-    }
-
-    const fetchDashboard = async () => {
-      try{
-        const response = await fetch(`${API}/atividade/dashboard/`,{
-          credentials: 'include'
-        })
-        const data = await response.json()
-  
-        if (response.ok){
-          setAlunos(data.alunos)
-          setAulas(data.aulas)
-          setInstrutores(data.instrutores)
-          setPlanos(data.planos)
+    const fetchData = async (url: string, setter: Function, errorMessage: string) => {
+      try {
+        const response = await fetch(`${API}${url}`, { credentials: 'include' });
+        const data = await response.json();
+        if (response.ok) {
+          setter(data);
+        } else {
+          console.error(data.detail);
         }
-  
-        else{
-          console.error(data.detail)
-        }
+      } catch {
+        console.error(errorMessage);
       }
-  
-      catch{
-        console.error("Erro ao buscar os dados das Atividades!!")
-      }
-    }
+    };
 
-    const fetchActivityChart = async () => {
-      try{
-        const response = await fetch(`${API}/atividade/chart/`,{
-          method: 'GET',
-          credentials: 'include'
-        })
-        const data = await response.json()
-  
-        if (response.ok){
-          setChartData(data)
-        }
-  
-        else{
-          console.error(data.detail)
-        }
-      }
-  
-      catch{
-        console.error("Erro ao buscar os dados das Atividades!!")
-      }
-    }
-
-    fetchActivityChart()
-    fetchDashboard()
-    fetchActivity()
-  }, [])
+    fetchData('/atividade/?limit=3', setActivities, 'Erro ao buscar os dados das Atividades!');
+    fetchData('/atividade/dashboard/', (data: any) => {
+      setAlunos(data.alunos);
+      setAulas(data.aulas);
+      setInstrutores(data.instrutores);
+      setPlanos(data.planos);
+    }, 'Erro ao buscar os dados do Dashboard!');
+    fetchData('/atividade/chart/', setChartData, 'Erro ao buscar os dados do gráfico!');
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="max-w-7xl mx-auto p-6 space-y-6 flex-1">
-        <DashboardCards alunos={alunos} instrutores={instrutores} aulas={aulas} planos={planos}/>
+    <div className="bg-gray-50">
+      <div className="max-w-7xl mx-auto p-6">
+        <DashboardCards alunos={alunos} instrutores={instrutores} aulas={aulas} planos={planos} />
 
-        <div className="flex space-x-6">
-          <div className="flex-1"> 
-            <ActivityChart chartData = {chartData}/>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <div className="flex-1 bg-white shadow-lg rounded-lg p-6">
+            <ActivityChart chartData={chartData} />
           </div>
 
-          <div className="flex-1 flex flex-col justify-between ">
+          <div className="flex-1 flex flex-col gap-6">
             <QuickActions />
-            
-            <RecentActivities activities = {activities}
-             />
+            <RecentActivities activities={activities} />
           </div>
         </div>
-
-        
       </div>
     </div>
   );
