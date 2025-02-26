@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
 import Options from "../Options";
 import HamburgerButton from "../HamburguerButton";
 
