@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Consultar from '@/components/Consultas';
 import ConfirmScreen from '@/components/ConfirmScreen';
 import { FiEdit, FiTrash2 } from 'react-icons/fi';
+import { formatMoney } from '@/utils/formatações';
 
 interface Plano {
   id: number;
@@ -64,15 +65,15 @@ export default function PlanosConsulta() {
     }
   }, [errorMessage]);
 
-  const formatReal = (valor:number) => {
-    return `R$${valor.toFixed(2)}`
+  const formatDuracao = (value: string) => {
+    return value === 'Men' ? 'Mensal' : value === 'Tri' ? 'Trimestral' : value === 'Sem' ? 'Semestral' : 'Anual'
   }
 
   const headers: { key: keyof Plano; label: string; href?: boolean; format?: Function }[] = [
     { key: 'id', label: 'ID', href: true },
     { key: 'nome', label: 'Nome' },
-    { key: 'duracao', label: 'Duração' },
-    { key: 'valor', label: 'Valor', format: formatReal },
+    { key: 'duracao', label: 'Duração', format: formatDuracao  },
+    { key: 'valor', label: 'Valor', format: formatMoney },
   ];
 
   const filterPlanos = (plano: Plano, searchTerm: string) => {

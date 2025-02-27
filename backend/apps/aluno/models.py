@@ -1,19 +1,21 @@
 from django.utils import timezone
 from django.db import models
-from django.contrib.auth.models import AbstractUser,Group, Permission
 
 # Create your models here.
     
 class Aluno(models.Model):
-
     class Meta:
         verbose_name = 'Aluno'
         verbose_name_plural = "Alunos"
+
+    def current_date():
+        return timezone.now().date()
 
     first_name = models.CharField(max_length=256)
     last_name = models.CharField(max_length=256)
     email = models.EmailField()
     telefone = models.CharField(max_length=20, null=True, blank=True)
+    data_admissao = models.DateField(default = current_date())
     data_de_nascimento = models.DateField(null=True, blank=True)
     cpf = models.CharField(max_length=14, unique=True)
     ativo = models.BooleanField(default=True)

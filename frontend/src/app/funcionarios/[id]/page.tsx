@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { formatarCREF, formatCPF, formatDate, formatMoney, formatPhone } from '@/utils/formatações';
 
 interface Funcionario {
   id: number;
@@ -22,8 +23,8 @@ const DetalhesFuncionario: React.FC = () => {
   const [funcionario, setFuncionario] = useState<Funcionario | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
-  const API = process.env.NEXT_PUBLIC_API
-  const { id } = useParams(); 
+  const API = process.env.NEXT_PUBLIC_API;
+  const { id } = useParams();
 
   useEffect(() => {
     if (!id) {
@@ -33,10 +34,9 @@ const DetalhesFuncionario: React.FC = () => {
 
     const fetchFuncionario = async () => {
       try {
-        const response = await fetch(`${API}/funcionario/${id}/`,{
-          credentials:'include'
-        }
-        );
+        const response = await fetch(`${API}/funcionario/${id}/`, {
+          credentials: 'include',
+        });
         if (!response.ok) throw new Error('Erro ao buscar detalhes do funcionário');
         const data: Funcionario = await response.json();
         setFuncionario(data);
@@ -59,11 +59,11 @@ const DetalhesFuncionario: React.FC = () => {
       try {
         const response = await fetch(`${API}/funcionario/${id}/`, {
           method: 'DELETE',
-          credentials: "include"
+          credentials: 'include',
         });
         if (response.ok) {
           alert('Funcionário excluído com sucesso!');
-          router.push('/funcionarios'); 
+          router.push('/funcionarios');
         } else {
           alert('Erro ao excluir o funcionário.');
         }
@@ -74,78 +74,60 @@ const DetalhesFuncionario: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="text-center text-gray-500">Carregando...</div>;
+    return <div className="text-center text-gray-500 mt-10">Carregando...</div>;
   }
 
   if (!funcionario) {
     return (
-      <div className="text-center text-red-500">
+      <div className="text-center text-red-500 mt-10">
         Funcionário não encontrado.
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto mb-6 p-6 bg-white shadow-md rounded-md">
-      <h1 className="text-2xl font-bold mb-4 text-center">Detalhes do Funcionário</h1>
+    <div className="max-w-4xl mx-auto mb-10 p-8 bg-white shadow-lg rounded-xl">
+      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
+        Detalhes do Funcionário
+      </h1>
       <div className="flex flex-col items-center">
         {funcionario.foto ? (
           <img
             src={`http://127.0.0.1:8000/${funcionario.foto}`}
             alt={`${funcionario.first_name} ${funcionario.last_name}`}
-            className="w-36 h-36 rounded-full mb-4"
+            className="w-40 h-40 rounded-full mb-6 shadow-md"
           />
         ) : (
-          <div className="w-36 h-36 bg-gray-200 rounded-full mb-4 flex items-center justify-center">
+          <div className="w-40 h-40 bg-gray-200 rounded-full mb-6 flex items-center justify-center shadow-md">
             <span className="text-gray-500">Sem Foto</span>
           </div>
         )}
-        <h2 className="text-xl font-semibold">
+        <h2 className="text-2xl font-semibold text-gray-700">
           {funcionario.first_name} {funcionario.last_name}
         </h2>
-        <p className="text-gray-600 mb-4">{funcionario.email}</p>
-        <div className="w-full">
-          <div className="flex justify-between mb-2">
-            <span className="font-medium">Data de Admissão:</span>
-            <span>{funcionario.data_admissao}</span>
-          </div>
-          <div className="flex justify-between mb-2">
-            <span className="font-medium">Horário de Trabalho:</span>
-            <span>
-              {funcionario.entrada} - {funcionario.saida}
-            </span>
-          </div>
-          <div className="flex justify-between mb-2">
-            <span className="font-medium">Salário:</span>
-            <span>R$ {parseFloat(funcionario.salario).toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between mb-2">
-            <span className="font-medium">CPF:</span>
-            <span>{funcionario.cpf}</span>
-          </div>
-          <div className="flex justify-between mb-2">
-            <span className="font-medium">Telefone:</span>
-            <span>{funcionario.telefone || 'Não informado'}</span>
-          </div>
-          {funcionario.cref && (
-            <div className="flex justify-between mb-2">
-              <span className="font-medium">CREF:</span>
-              <span>{funcionario.cref}</span>
-            </div>
-          )}
+        <p className="text-gray-500 text-lg mb-6">{funcionario.email}</p>
+
+        <div className="w-full bg-gray-100 p-6 rounded-lg shadow-sm">
+          <p><strong>📅 Admissão:</strong> {formatDate(funcionario.data_admissao)}</p>
+          <p><strong>🕒 Horário:</strong> {funcionario.entrada} - {funcionario.saida}</p>
+          <p><strong>💰 Salário:</strong> {formatMoney(Number(funcionario.salario))}</p>
+          <p><strong>🆔 CPF:</strong> {formatCPF(funcionario.cpf)}</p>
+          <p><strong>📞 Telefone:</strong> {formatPhone(funcionario.telefone) || 'Não informado'}</p>
+          {funcionario.cref && <p><strong>🏅 CREF:</strong> {formatarCREF(funcionario.cref)}</p>}
         </div>
+
         <div className="flex justify-center mt-6 space-x-4">
           <button
             onClick={handleUpdate}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700"
+            className="px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition"
           >
-            Atualizar
+            ✏️ Atualizar
           </button>
           <button
             onClick={handleDelete}
-            className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-700"
+            className="px-5 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 transition"
           >
-            Excluir
+            🗑 Excluir
           </button>
         </div>
       </div>
