@@ -5,6 +5,7 @@ import { FiCheckCircle, FiEdit, FiTrash2 } from 'react-icons/fi';
 import Consultar from '@/components/Consultas';
 import { useRouter } from 'next/navigation';
 import ConfirmScreen from '@/components/ConfirmScreen';
+import { formatPhone } from '@/utils/formatações';
 
 interface Aluno {
   id: number;
@@ -58,10 +59,10 @@ const ConsultarAlunos: React.FC = () => {
     FetchAlunos();
   }, []);
 
-  const headers: { key: keyof Aluno; key2?: keyof Aluno , label: string; href?: boolean }[] = [
+  const headers: { key: keyof Aluno; key2?: keyof Aluno , label: string; href?: boolean, format?: Function }[] = [
     { key: 'id', label: 'ID', href: true },
     { key: 'first_name', key2:'last_name', label: 'Nome Completo' },
-    { key: 'telefone', label: 'Telefone' },
+    { key: 'telefone', label: 'Telefone', format: formatPhone },
     { key: 'ativo', label: 'Status' },
   ];
 

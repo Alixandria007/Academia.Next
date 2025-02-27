@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation'; // Usando useParams e useRouter
+import { formatCPF, formatPhone } from '@/utils/formatações';
 
 interface Aluno {
   id: number;
@@ -89,8 +90,8 @@ export default function AlunoDetalhe() {
       <div className="bg-white p-6 rounded-lg shadow-md">
         <p><strong>Nome:</strong> {aluno.first_name} {aluno.last_name}</p>
         <p><strong>Email:</strong> {aluno.email}</p>
-        <p><strong>CPF:</strong> {aluno.cpf}</p>
-        <p><strong>Telefone:</strong> {aluno.telefone}</p>
+        <p><strong>CPF:</strong> {formatCPF(aluno.cpf)}</p>
+        <p><strong>Telefone:</strong> {formatPhone(aluno.telefone)}</p>
         <p><strong>Data de Nascimento:</strong> {aluno.data_de_nascimento}</p>
 
         <div className="mt-4 flex space-x-4">
