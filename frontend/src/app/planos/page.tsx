@@ -84,7 +84,7 @@ export default function PlanosConsulta() {
   };
 
   const handleEdit = (id: number) => {
-    router.push(`/plano/${id}/atualizar`);
+    router.push(`/planos/${id}/atualizar`);
   };
 
   const handleDelete = async () => {

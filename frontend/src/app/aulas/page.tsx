@@ -66,7 +66,7 @@ const ConsultarAulas: React.FC = () => {
   };
 
   const handleEdit = (id: number) => {
-    router.push(`/aulas/${id}/editar`);
+    router.push(`/aulas/${id}/atualizar`);
   };
 
   const handleDelete = async (id: number) => {

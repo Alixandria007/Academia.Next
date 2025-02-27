@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { formatCPF, formatPhone } from '@/utils/formatações';
 
 interface Aluno {
   id: number;
@@ -18,140 +19,150 @@ export default function UpdateAluno() {
   const [aluno, setAluno] = useState<Aluno | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const API = process.env.NEXT_PUBLIC_API
+  const [successMessage, setSuccessMessage] = useState<string>('');
+  const API = process.env.NEXT_PUBLIC_API;
   const router = useRouter();
 
-  // Função para buscar o aluno
-  const fetchAluno = async (id: string) => {
-    try {
-      const response = await fetch(`${API}/aluno/${id}/`);
-      if (!response.ok) {
-        throw new Error('Erro ao carregar dados do aluno');
+  useEffect(() => {
+    const fetchAluno = async () => {
+      try {
+        const response = await fetch(`${API}/aluno/${id}/`, {
+          credentials: "include"
+        });
+        if (!response.ok) throw new Error('Erro ao carregar dados do aluno');
+
+        const data = await response.json();
+        setAluno(data);
+      } catch (error) {
+        setError('Falha ao carregar dados do aluno');
+      } finally {
+        setLoading(false);
       }
-      const data = await response.json();
-      setAluno(data);
-    } catch (error) {
-      setError('Falha ao carregar dados do aluno');
-    } finally {
-      setLoading(false);
+    };
+
+    if (id) fetchAluno();
+  }, [id]);
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    
+    let formattedValue = value;
+    if (name === 'cpf') formattedValue = formatCPF(value);
+    else if (name === 'telefone') formattedValue = formatPhone(value);
+
+    if (aluno) {
+      setAluno({ ...aluno, [name]: formattedValue });
     }
   };
 
-  useEffect(() => {
-    if (id && typeof id === 'string') {
-      fetchAluno(id);
-    }
-  }, [id]);
-
-  const handleUpdate = async (e: React.FormEvent) => {
+  const handleUpdate = async (e: FormEvent) => {
     e.preventDefault();
+    if (!aluno) return;
 
-    if (aluno) {
+    try {
       const response = await fetch(`${API}/aluno/${id}/`, {
-        method: 'POST',
+        method: 'PATCH', 
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(aluno),
-        credentials: 'include'
+        credentials: 'include',
       });
 
-      if (response.ok) {
-        console.log('Aluno atualizado com sucesso!');
-        router.push(`/alunos/${id}`);
-      } else {
-        console.log('Erro ao atualizar aluno.');
-      }
+      if (!response.ok) throw new Error('Erro ao atualizar aluno');
+
+      setSuccessMessage('Aluno atualizado com sucesso!');
+      setTimeout(() => router.push(`/alunos/${id}`), 2000);
+    } catch (error) {
+      setError('Erro ao atualizar aluno. Tente novamente.');
     }
   };
 
+
   if (loading) return <p>Carregando...</p>;
-  if (error) return <p>{error}</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
   if (!aluno) return <p>Aluno não encontrado.</p>;
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-md">
       <h1 className="text-2xl text-center font-bold mb-4">Atualizar Aluno</h1>
+
+      {successMessage && (
+        <div className="p-4 mb-4 text-green-700 bg-green-100 rounded">
+          {successMessage}
+        </div>
+      )}
+
       <form onSubmit={handleUpdate}>
         <div className="mb-4">
-          <label htmlFor="nome" className="block text-sm font-medium text-gray-700">
-            Nome
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Nome</label>
           <input
             type="text"
-            id="first_name"
+            name="first_name"
             value={aluno.first_name}
-            onChange={(e) => setAluno({ ...aluno, first_name: e.target.value })}
+            onChange={handleInputChange}
             className="mt-1 p-2 border border-gray-300 rounded-md w-full"
             required
           />
         </div>
 
         <div className="mb-4">
-          <label htmlFor="nome" className="block text-sm font-medium text-gray-700">
-            Nome
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Sobrenome</label>
           <input
             type="text"
-            id="last_name"
+            name="last_name"
             value={aluno.last_name}
-            onChange={(e) => setAluno({ ...aluno, last_name: e.target.value })}
+            onChange={handleInputChange}
             className="mt-1 p-2 border border-gray-300 rounded-md w-full"
             required
           />
         </div>
 
         <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-            Email
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Email</label>
           <input
             type="email"
-            id="email"
+            name="email"
             value={aluno.email}
-            onChange={(e) => setAluno({ ...aluno, email: e.target.value })}
+            onChange={handleInputChange}
             className="mt-1 p-2 border border-gray-300 rounded-md w-full"
             required
           />
         </div>
 
         <div className="mb-4">
-          <label htmlFor="cpf" className="block text-sm font-medium text-gray-700">
-            CPF
-          </label>
+          <label className="block text-sm font-medium text-gray-700">CPF</label>
           <input
             type="text"
-            id="cpf"
+            name="cpf"
             value={aluno.cpf}
-            onChange={(e) => setAluno({ ...aluno, cpf: e.target.value })}
+            onChange={handleInputChange}
+            maxLength={14}
             className="mt-1 p-2 border border-gray-300 rounded-md w-full"
             required
           />
         </div>
 
         <div className="mb-4">
-          <label htmlFor="telefone" className="block text-sm font-medium text-gray-700">
-            Telefone
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Telefone</label>
           <input
             type="text"
-            id="telefone"
+            name="telefone"
             value={aluno.telefone}
-            onChange={(e) => setAluno({ ...aluno, telefone: e.target.value })}
+            onChange={handleInputChange}
+            maxLength={11}
             className="mt-1 p-2 border border-gray-300 rounded-md w-full"
             required
           />
         </div>
 
         <div className="mb-4">
-          <label htmlFor="dataNascimento" className="block text-sm font-medium text-gray-700">
-            Data de Nascimento
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Data de Nascimento</label>
           <input
             type="date"
-            id="data_de_nascimento"
+            name="data_de_nascimento"
             value={aluno.data_de_nascimento}
-            onChange={(e) => setAluno({ ...aluno, data_de_nascimento: e.target.value })}
+            onChange={handleInputChange}
             className="mt-1 p-2 border border-gray-300 rounded-md w-full"
             required
           />

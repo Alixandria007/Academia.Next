@@ -52,7 +52,7 @@ const AtualizarAula = () => {
   useEffect(() => {
     const fetchInstrutores = async () => {
       try {
-        const response = await fetch(`${API}/funcionario/instrutores/`, {
+        const response = await fetch(`${API}/funcionario?instrutores/`, {
           credentials: 'include'
         });
         if (!response.ok) {
@@ -141,7 +141,7 @@ const AtualizarAula = () => {
 
   const handleDiasSemanaChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const selectedOptions = Array.from(e.target.selectedOptions, (option) => option.value);
-    setDiasSemana(selectedOptions);  // Garantindo que os valores sejam passados como strings
+    setDiasSemana(selectedOptions); 
   };
 
   return (
@@ -224,13 +224,13 @@ const AtualizarAula = () => {
           <select
             id="dias_da_semana"
             multiple
-            value={diasSemana}  // Mantendo como string[]
+            value={diasSemana}  
             onChange={handleDiasSemanaChange}
             className="w-full p-2 border rounded"
             required
           >
             {diasDaSemanaOpcoes.map((dia) => (
-              <option key={dia.id} value={dia.id.toString()}>  {/* Convertendo o ID para string */}
+              <option key={dia.id} value={dia.id.toString()}>
                 {dia.nome}
               </option>
             ))}

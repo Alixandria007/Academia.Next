@@ -32,7 +32,7 @@ const RecentActivities = ({ activities }: RecentActivitiesProps) => {
       <h2 className="text-xl font-bold text-gray-700 mb-1">Atividades Recentes</h2>
       <ul className="divide-y divide-gray-200">
         {activities.map((act, index) => (
-          <li key={index} className="py-1">
+          <li key={index} className="py-2">
             <span className="font-semibold text-blue-600">{capitalize(act.tipo_acao)}</span> - 
             <span className="text-gray-700"> {act.descricao} </span> - 
             <span className="text-sm text-gray-500"> {formatDate(act.data_hora)}</span>

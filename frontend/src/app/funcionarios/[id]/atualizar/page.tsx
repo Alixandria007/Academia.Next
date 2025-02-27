@@ -2,6 +2,7 @@
 
 import { useEffect, useState, ChangeEvent, FormEvent } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { formatarCREF, formatCPF, formatPhone } from '@/utils/formatações';
 
 interface FuncionarioFormData {
   first_name: string;
@@ -44,7 +45,9 @@ export default function AtualizarFuncionario() {
   useEffect(() => {
     const fetchFuncionario = async () => {
       try {
-        const response = await fetch(`${API}/funcionario/${id}/`);
+        const response = await fetch(`${API}/funcionario/${id}/`, {
+          credentials: "include"
+        });
         if (response.ok) {
           const data = await response.json();
 
@@ -70,7 +73,11 @@ export default function AtualizarFuncionario() {
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    let formattedValue = value;
+    if (name == "cref") formattedValue = formatarCREF(formattedValue.toUpperCase())
+    else if (name === "telefone") formattedValue = formatPhone(formattedValue)
+    else if (name === 'cpf') formattedValue = formatCPF(formattedValue)
+    setFormData({ ...formData, [name]: formattedValue });
     setFieldErrors({ ...fieldErrors, [name]: '' });
   };
 
@@ -94,6 +101,7 @@ export default function AtualizarFuncionario() {
       const response = await fetch(`${API}/funcionario/${id}/`, {
         method: 'PATCH',
         body: dataToSend,
+        credentials: "include"
       });
 
       if (response.ok) {

@@ -7,27 +7,36 @@ interface Plano {
   nome: string;
   valor: number;
   duracao: string;
-  aulas: boolean;
+  atividade_extra: string[]; // Agora aceita múltiplas atividades
+}
+
+interface AtividadeExtra {
+  id: string;
+  descricao: string;
 }
 
 export default function AtualizarPlano() {
   const { id } = useParams();
   const router = useRouter();
+  const API = process.env.NEXT_PUBLIC_API;
+
   const [plano, setPlano] = useState<Plano>({
     nome: '',
     valor: 1,
     duracao: 'Men',
-    aulas: false,
+    atividade_extra: [], 
   });
+
+  const [atividades, setAtividades] = useState<AtividadeExtra[]>([]);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
 
-  const API = process.env.NEXT_PUBLIC_API
-
   useEffect(() => {
-    const fetchPlanoDetails = async () => {
+    async function fetchPlanoDetails() {
       try {
-        const response = await fetch(`${API}/plano/${id}/`);
+        const response = await fetch(`${API}/plano/${id}/`, {
+          credentials: 'include',
+        });
 
         if (response.ok) {
           const data = await response.json();
@@ -39,19 +48,41 @@ export default function AtualizarPlano() {
         setErrorMessage('Erro ao carregar detalhes do plano.');
         console.error(error);
       }
-    };
+    }
+
+    async function fetchAtividades() {
+      try {
+        const response = await fetch(`${API}/plano/atividade_extra/`, {
+          credentials: 'include',
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setAtividades(data);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar atividades extras:', error);
+      }
+    }
 
     fetchPlanoDetails();
+    fetchAtividades();
   }, [id]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    {// @ts-ignore
-        const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setPlano((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: value,
     }));
-  };}
+  };
+
+  const handleAtividadeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedOptions = Array.from(e.target.selectedOptions).map((option) => option.value);
+    setPlano((prev) => ({
+      ...prev,
+      atividade_extra: selectedOptions,
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,8 +95,8 @@ export default function AtualizarPlano() {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials:'include',
         body: JSON.stringify(plano),
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -139,15 +170,22 @@ export default function AtualizarPlano() {
           </select>
         </div>
 
-        <div className="flex items-center gap-4 mt-4">
-          <input
-            type="checkbox"
-            name="aulas"
-            checked={plano.aulas}
-            onChange={handleInputChange}
-            className="w-5 h-5"
-          />
-          <label className="text-gray-700">Aulas Inclusas</label>
+        <div>
+          <label className="block text-gray-700 font-medium">Atividades Extras</label>
+          <select
+            multiple
+            name="atividade_extra"
+            value={plano.atividade_extra}
+            onChange={handleAtividadeChange}
+            className="w-full p-3 border border-gray-300 rounded-lg"
+          >
+            {atividades.map((atividade) => (
+              <option key={atividade.id} value={atividade.id}>
+                {atividade.descricao}
+              </option>
+            ))}
+          </select>
+          <p className="text-sm text-gray-500 mt-1">Segure CTRL (ou CMD no Mac) para selecionar múltiplas atividades.</p>
         </div>
 
         <div className="flex justify-between mt-10">

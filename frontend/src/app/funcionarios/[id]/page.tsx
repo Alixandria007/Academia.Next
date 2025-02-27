@@ -59,6 +59,7 @@ const DetalhesFuncionario: React.FC = () => {
       try {
         const response = await fetch(`${API}/funcionario/${id}/`, {
           method: 'DELETE',
+          credentials: "include"
         });
         if (response.ok) {
           alert('Funcionário excluído com sucesso!');
