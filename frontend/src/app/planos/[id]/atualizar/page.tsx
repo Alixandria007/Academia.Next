@@ -7,7 +7,7 @@ interface Plano {
   nome: string;
   valor: number;
   duracao: string;
-  atividade_extra: string[]; // Agora aceita múltiplas atividades
+  atividade_extra: string[]; 
 }
 
 interface AtividadeExtra {

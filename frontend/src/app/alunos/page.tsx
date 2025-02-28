@@ -104,7 +104,7 @@ const ConsultarAlunos: React.FC = () => {
         title="Consultar Alunos"
         headers={headers}
         filterFunction={filterAlunos}
-        placeholder="Buscar por nome ou matrícula"
+        placeholder="Buscar por nome ou CPF"
         url_add='cadastrar'
         actions={(item: Aluno) => (
           <div className="flex justify-center items-center space-x-2">

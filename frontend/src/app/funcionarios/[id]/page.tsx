@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { formatarCREF, formatCPF, formatDate, formatMoney, formatPhone } from '@/utils/formatações';
+import { formatarCREF, formatCPF, formatDate, formatMoney, formatPhone, formatTime } from '@/utils/formatações';
 
 interface Funcionario {
   id: number;
@@ -109,7 +109,7 @@ const DetalhesFuncionario: React.FC = () => {
 
         <div className="w-full bg-gray-100 p-6 rounded-lg shadow-sm">
           <p><strong>📅 Admissão:</strong> {formatDate(funcionario.data_admissao)}</p>
-          <p><strong>🕒 Horário:</strong> {funcionario.entrada} - {funcionario.saida}</p>
+          <p><strong>🕒 Horário:</strong> {formatTime(funcionario.entrada)} - {formatTime(funcionario.saida)}</p>
           <p><strong>💰 Salário:</strong> {formatMoney(Number(funcionario.salario))}</p>
           <p><strong>🆔 CPF:</strong> {formatCPF(funcionario.cpf)}</p>
           <p><strong>📞 Telefone:</strong> {formatPhone(funcionario.telefone) || 'Não informado'}</p>

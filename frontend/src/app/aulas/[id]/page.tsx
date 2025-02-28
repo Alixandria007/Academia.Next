@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { formatTime } from '@/utils/formatações';
 
 interface Instrutor {
   id: number;
@@ -97,6 +98,7 @@ export default function AulaDetalhes() {
   }
 
   return (
+    <>
     <div className="max-w-4xl mx-auto mb-10 p-8 bg-white shadow-lg rounded-xl">
       <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">{aula.nome}</h1>
 
@@ -124,7 +126,7 @@ export default function AulaDetalhes() {
         <p className="text-gray-500 text-lg mb-6">Instrutor</p>
 
         <div className="w-full bg-gray-100 p-6 rounded-lg shadow-sm">
-          <p><strong>🕒 Horário:</strong> {aula.horario_inicial} - {aula.horario_final}</p>
+          <p><strong>🕒 Horário:</strong> {formatTime(aula.horario_inicial)} - {formatTime(aula.horario_final)}</p>
           <p><strong>💼 Vagas:</strong> {aula.vagas}</p>
           <p><strong>📚 Alunos Matriculados:</strong> {aula.alunos_inscritos}</p>
           <p><strong>📅 Dias da Semana:</strong> {aula.dias_da_semana.map((dia) => dia.nome).join(', ')}</p>
@@ -151,10 +153,10 @@ export default function AulaDetalhes() {
           </button>
         </div>
       </div>
+    </div>
 
-      {/* Inscrições */}
-      <div className="bg-white shadow-lg rounded-xl p-8 max-w-4xl mx-auto mt-10">
-        <h2 className="text-3xl font-bold text-blue-600 text-center mb-6">Inscrições</h2>
+    <div className="bg-white shadow-lg rounded-xl p-8 max-w-4xl mx-auto my-5">
+        <h2 className="text-3xl font-bold text-center mb-6">Inscrições</h2>
         {inscricoes.length > 0 ? (
           <ul className="space-y-6">
             {inscricoes.map((inscricao) => (
@@ -175,6 +177,6 @@ export default function AulaDetalhes() {
           <p className="text-gray-600 text-center">Nenhuma inscrição encontrada.</p>
         )}
       </div>
-    </div>
+    </>
   );
 }

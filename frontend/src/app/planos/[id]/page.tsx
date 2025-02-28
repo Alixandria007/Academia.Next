@@ -2,18 +2,31 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { formatDuracao } from '@/utils/formatações';
+import { formatDate, formatDuracao, formatMoney } from '@/utils/formatações';
 
 interface Plano {
   nome: string;
   valor: number;
   duracao: string;
-  atividade_extra: string[]; // Agora aceita múltiplas atividades
+  atividade_extra: string[];
 }
 
 interface AtividadeExtra {
   id: string;
   descricao: string;
+}
+
+interface Assinatura {
+  id: number;
+  aluno: {
+    id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+  data_assinatura: string;
+  vencimento: string;
+  total: number;
 }
 
 export default function DetalhesPlano() {
@@ -23,47 +36,63 @@ export default function DetalhesPlano() {
 
   const [plano, setPlano] = useState<Plano | null>(null);
   const [atividades, setAtividades] = useState<AtividadeExtra[]>([]);
+  const [assinaturas, setAssinaturas] = useState<Assinatura[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Função para buscar o plano
-  const fetchPlano = async () => {
-    if (!id || typeof id !== 'string') return;
-
-    try {
-      const response = await fetch(`${API}/plano/${id}`, { credentials: 'include' });
-      if (response.ok) {
-        const data = await response.json();
-        setPlano(data);
-      } else {
-        setError('Erro ao carregar plano');
-      }
-    } catch (error) {
-      setError('Erro ao carregar plano');
-      console.error(error);
-    }
-  };
-
-  // Função para buscar as atividades extras
-  const fetchAtividades = async () => {
-    try {
-      const response = await fetch(`${API}/plano/atividade_extra/`, { credentials: 'include' });
-      if (response.ok) {
-        const data = await response.json();
-        setAtividades(data);
-      } else {
-        setError('Erro ao carregar atividades extras');
-      }
-    } catch (error) {
-      setError('Erro ao carregar atividades extras');
-      console.error(error);
-    }
-  };
-
   useEffect(() => {
+    const fetchPlano = async () => {
+      if (!id || typeof id !== 'string') return;
+
+      try {
+        const response = await fetch(`${API}/plano/${id}`, { credentials: 'include' });
+        if (response.ok) {
+          const data = await response.json();
+          setPlano(data);
+        } else {
+          setError('Erro ao carregar plano');
+        }
+      } catch (error) {
+        setError('Erro ao carregar plano');
+        console.error(error);
+      }
+    };
+
+    const fetchAtividades = async () => {
+      try {
+        const response = await fetch(`${API}/plano/atividade_extra/`, { credentials: 'include' });
+        if (response.ok) {
+          const data = await response.json();
+          setAtividades(data);
+        } else {
+          setError('Erro ao carregar atividades extras');
+        }
+      } catch (error) {
+        setError('Erro ao carregar atividades extras');
+        console.error(error);
+      }
+    };
+
+    const fetchAssinaturas = async () => {
+      try {
+        const response = await fetch(`${API}/plano/assinatura/?plano=${id}`, { credentials: 'include' });
+        if (response.ok) {
+          const data = await response.json();
+          setAssinaturas(data);
+        } else {
+          setError('Erro ao carregar assinaturas');
+        }
+      } catch (error) {
+        setError('Erro ao carregar assinaturas');
+        console.error(error);
+      }
+    };
+
     fetchPlano();
     fetchAtividades();
-    setLoading(false); // Assume que a carga inicial já terminou.
+    fetchAssinaturas();
+    setLoading(false);
   }, [id]);
 
   if (loading) {
@@ -82,14 +111,21 @@ export default function DetalhesPlano() {
     return <div className="text-center text-red-500 mt-10">Plano não encontrado.</div>;
   }
 
+  const filteredAssinaturas = assinaturas.filter((assinatura) =>
+    `${assinatura.aluno.first_name} ${assinatura.aluno.last_name}`
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="max-w-4xl mx-auto mb-10 p-8 bg-white shadow-lg rounded-xl">
-      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Detalhes do Plano</h1>
-      <div className="w-full bg-gray-100 p-6 rounded-lg shadow-sm">
-        <p><strong>Nome do Plano:</strong> {plano.nome}</p>
-        <p><strong>Valor (R$):</strong> {plano.valor}</p>
-        <p><strong>Duração:</strong> {formatDuracao(plano.duracao)}</p>
-        <p><strong>Atividades Extras:</strong></p>
+      <h1 className="text-4xl font-bold mb-6 text-center text-blue-600">{plano.nome}</h1>
+
+      <div className="w-full bg-gray-100 p-6 rounded-lg shadow-sm mt-6">
+        <p><strong>📅 Nome do Plano:</strong> {plano.nome}</p>
+        <p><strong>💰 Valor:</strong> {formatMoney(plano.valor)}</p>
+        <p><strong>⏳ Duração:</strong> {formatDuracao(plano.duracao)}</p>
+        <p><strong>🎯 Atividades Extras:</strong></p>
         {plano.atividade_extra.length > 0 ? (
           <ul className="mt-2 space-y-2">
             {plano.atividade_extra.map((atividadeId) => {
@@ -117,6 +153,51 @@ export default function DetalhesPlano() {
         >
           ↩ Voltar
         </button>
+      </div>
+
+      {/* Seção de Assinaturas */}
+      <div className="bg-white shadow-lg rounded-xl p-8 mt-10">
+        <h2 className="text-3xl font-bold text-blue-600 text-center mb-6">Assinaturas Ativas</h2>
+
+        <input
+          type="text"
+          placeholder="Buscar aluno..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full p-3 border border-gray-300 rounded-lg mb-4"
+        />
+
+        {filteredAssinaturas.length > 0 ? (
+          <ul className="space-y-4">
+            {filteredAssinaturas.map((assinatura) => (
+              <li
+                key={assinatura.id}
+                className="p-4 bg-gray-50 rounded-lg shadow-md hover:shadow-lg transition-all"
+              >
+                <p className="text-xl font-medium text-gray-800">
+                  {assinatura.aluno.first_name} {assinatura.aluno.last_name}
+                </p>
+                <p className="text-gray-600 mt-2">
+                  <strong>ID:</strong> {assinatura.aluno.id}
+                </p>
+                <p className="text-gray-600 mt-1">
+                  <strong>Email:</strong> {assinatura.aluno.email}
+                </p>
+                <p className="text-gray-600 mt-1">
+                  <strong>Data de Assinatura:</strong> {formatDate(assinatura.data_assinatura)}
+                </p>
+                <p className="text-gray-600 mt-1">
+                  <strong>Vencimento:</strong> {formatDate(assinatura.vencimento)}
+                </p>
+                <p className="text-gray-600 mt-1">
+                  <strong>Total Pago:</strong> {formatMoney(assinatura.total)}
+                </p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-gray-600 text-center">Nenhuma assinatura encontrada.</p>
+        )}
       </div>
     </div>
   );

@@ -47,7 +47,7 @@ export default function CriarAssinatura() {
     }
 
     try {
-      const response = await fetch(`${API}/plano/assinatura`, {
+      const response = await fetch(`${API}/plano/assinatura/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -5,6 +5,7 @@ import Consultar from '@/components/Consultas';
 import { FiEdit, FiTrash2 } from 'react-icons/fi';
 import { useRouter } from 'next/navigation';
 import ConfirmScreen from '@/components/ConfirmScreen';
+import { formatDate, formatTime } from '@/utils/formatações';
 
 interface Aula {
   id: number;
@@ -47,11 +48,11 @@ const ConsultarAulas: React.FC = () => {
     fetchAulas();
   }, []);
 
-  const headers: { key: keyof Aula; label: string; href?: boolean }[] = [
+  const headers: { key: keyof Aula; label: string; href?: boolean, format?: Function }[] = [
     { key: 'id', label: 'ID', href: true },
     { key: 'nome', label: 'Nome' },
-    { key: 'horario_inicial', label: 'Início' },
-    { key: 'horario_final', label: 'Fim' },
+    { key: 'horario_inicial', label: 'Início', format: formatTime },
+    { key: 'horario_final', label: 'Fim', format: formatTime },
     { key: 'vagas', label: 'Vagas' },
   ];
 

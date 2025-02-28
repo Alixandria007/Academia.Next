@@ -60,3 +60,14 @@ export const formatMoney = (value: number ): string => {
 export const formatDuracao = (value: string) => {
   return value === 'Men' ? 'Mensal' : value === 'Tri' ? 'Trimestral' : value === 'Sem' ? 'Semestral' : 'Anual'
 }
+
+export const formatTime = (time: string | null | undefined): string => {
+  if (!time) return "00:00";
+
+  const cleanedTime = time.replace(/\D/g, '');
+
+  const hours = cleanedTime.slice(0, 2).padStart(2, '0');
+  const minutes = cleanedTime.slice(2, 4).padStart(2, '0');
+
+  return `${hours}:${minutes}`;
+};

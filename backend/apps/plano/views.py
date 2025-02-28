@@ -64,6 +64,19 @@ class PlanoDetailView(APIView):
         return Response({'detail':'Erro ao atualizar os dados!!', 'errors': serializer.errors}, status = status.HTTP_400_BAD_REQUEST)
     
 class AssinaturaView(APIView):
+    def get(self, request):
+        plano = request.GET.get('plano')
+        assinaturas = (models.Assinatura.objects.filter(plano = plano) 
+                       if plano 
+                       else models.Assinatura.objects.all())
+        
+        serializer = (serializers.AssinaturaSerializer(assinaturas, many = True, context = {'expand_aluno': True}) 
+                      if plano 
+                      else serializers.AssinaturaSerializer(assinaturas, many = True))
+        
+        print(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     def post(self, request):
         data = request.data
         duracao = data['duracao']
