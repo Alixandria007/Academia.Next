@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_list_or_404, get_object_or_404
+from django.db.models import Max
 from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -66,15 +67,15 @@ class PlanoDetailView(APIView):
 class AssinaturaView(APIView):
     def get(self, request):
         plano = request.GET.get('plano')
-        assinaturas = (models.Assinatura.objects.filter(plano = plano) 
-                       if plano 
-                       else models.Assinatura.objects.all())
-        
-        serializer = (serializers.AssinaturaSerializer(assinaturas, many = True, context = {'expand_aluno': True}) 
-                      if plano 
-                      else serializers.AssinaturaSerializer(assinaturas, many = True))
-        
-        print(serializer.data)
+        ultima_assinatura = models.Assinatura.objects.values('aluno').annotate(ultimo_vencimento=Max('vencimento'))
+
+        if plano:
+            assinaturas = models.Assinatura.objects.filter(plano=plano, aluno__in=[item['aluno'] for item in ultima_assinatura])
+            serializer = serializers.AssinaturaSerializer(assinaturas, many=True, context={'expand_aluno': True})
+        else:
+            assinaturas = models.Assinatura.objects.filter(aluno__in=[item['aluno'] for item in ultima_assinatura])
+            serializer = serializers.AssinaturaSerializer(assinaturas, many=True)
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
@@ -106,13 +107,14 @@ class AssinaturaView(APIView):
         data['duracao'] = None
 
         serializer = serializers.AssinaturaSerializer(data = data)
+        print(data)
         if serializer.is_valid():
             serializer.save()
 
             create_activity(tipo = 'assinatura', descricao = f'Nova assinatura de plano do tipo {duracao} do aluno {aluno.first_name} {aluno.last_name} do ID-{aluno.pk}')
             return Response({"detail":"Assinatura cadastrada com sucesso!!"}, status= status.HTTP_201_CREATED)
         
-        return Response({"detail":"Erro ao cadastrar aula!!"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail":serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
     
 class AtividadeExtraView(APIView):
     def get(self, request):

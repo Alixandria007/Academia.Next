@@ -55,7 +55,7 @@ export default function CriarAssinatura() {
         body: JSON.stringify({
           plano: selectedPlano,
           valor: valor,
-          aluno: id,
+          aluno: Number(id),
           duracao: duracao
         }),
         credentials:'include'
