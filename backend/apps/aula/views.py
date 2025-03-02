@@ -11,8 +11,14 @@ from . import serializers
 
 class AulaView(APIView):
     def get(self, request):
-        aulas = get_list_or_404(models.Aula)
-        serializer = serializers.AulaSerializerGet(aulas, many = True)
+        instrutor = request.GET.get("instrutor_id")
+
+        if instrutor:
+            aulas = get_list_or_404(models.Aula, instrutor = instrutor)
+            serializer = serializers.AulaSerializerGet(aulas, many = True)
+        else:
+            aulas = get_list_or_404(models.Aula)
+            serializer = serializers.AulaSerializerGet(aulas, many = True)
 
         return Response(serializer.data)
     

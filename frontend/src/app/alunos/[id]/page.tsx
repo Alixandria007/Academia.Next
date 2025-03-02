@@ -115,7 +115,7 @@ export default function AlunoDetalhe() {
         <div className="flex flex-col items-center mb-8">
           {aluno.foto ? (
             <img
-              src={`http://127.0.0.1:8000/${aluno.foto}`}
+              src={`${API}/${aluno.foto}`}
               alt={`${aluno.first_name} ${aluno.last_name}`}
               className="w-40 h-40 rounded-full mb-6 shadow-md"
             />

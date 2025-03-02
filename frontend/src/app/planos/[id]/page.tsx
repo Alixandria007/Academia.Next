@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { formatDate, formatDuracao, formatMoney } from '@/utils/formatações';
+import Link from 'next/link';
+import { frontendUrl } from '@/utils/imports';
 
 interface Plano {
   nome: string;
@@ -155,7 +157,6 @@ export default function DetalhesPlano() {
         </button>
       </div>
 
-      {/* Seção de Assinaturas */}
       <div className="bg-white shadow-lg rounded-xl p-8 mt-10">
         <h2 className="text-3xl font-bold text-blue-600 text-center mb-6">Assinaturas Ativas</h2>
 
@@ -174,8 +175,8 @@ export default function DetalhesPlano() {
                 key={assinatura.id}
                 className="p-4 bg-gray-50 rounded-lg shadow-md hover:shadow-lg transition-all"
               >
-                <p className="text-xl font-medium text-gray-800">
-                  {assinatura.aluno.first_name} {assinatura.aluno.last_name}
+                <p className="text-xl font-medium text-blue-700">
+                  <Link href={`${frontendUrl()}/alunos/${assinatura.aluno.id}`}>{assinatura.aluno.first_name} {assinatura.aluno.last_name}</Link>
                 </p>
                 <p className="text-gray-600 mt-2">
                   <strong>ID:</strong> {assinatura.aluno.id}
@@ -188,9 +189,6 @@ export default function DetalhesPlano() {
                 </p>
                 <p className="text-gray-600 mt-1">
                   <strong>Vencimento:</strong> {formatDate(assinatura.vencimento)}
-                </p>
-                <p className="text-gray-600 mt-1">
-                  <strong>Total Pago:</strong> {formatMoney(assinatura.total)}
                 </p>
               </li>
             ))}

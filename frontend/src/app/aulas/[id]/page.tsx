@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { formatTime } from '@/utils/formatações';
+import { apiUrl, frontendUrl } from '@/utils/imports';
+import Link from 'next/link';
 
 interface Instrutor {
   id: number;
@@ -111,7 +113,7 @@ export default function AulaDetalhes() {
       <div className="flex flex-col items-center mb-8">
         {aula.instrutor?.foto ? (
           <img
-            src={`http://127.0.0.1:8000/${aula.instrutor.foto}`}
+            src={`${apiUrl()}/${aula.instrutor.foto}`}
             alt={`${aula.instrutor.first_name} ${aula.instrutor.last_name}`}
             className="w-40 h-40 rounded-full mb-6 shadow-md"
           />
@@ -120,8 +122,8 @@ export default function AulaDetalhes() {
             <span className="text-gray-500">Sem Foto</span>
           </div>
         )}
-        <h2 className="text-2xl font-semibold text-gray-700">
-          {aula.instrutor.first_name} {aula.instrutor.last_name}
+        <h2 className="text-2xl font-semibold text-blue-700">
+          <Link href={`${frontendUrl()}/funcionarios/${aula.instrutor.id}`}>{aula.instrutor.first_name} {aula.instrutor.last_name}</Link>
         </h2>
         <p className="text-gray-500 text-lg mb-6">Instrutor</p>
 
