@@ -14,39 +14,36 @@ class AssinaturaSerializer(serializers.ModelSerializer):
         model = Assinatura
         fields = 'id', 'aluno', 'plano','total', 'data_assinatura', 'vencimento'
 
-
     def to_representation(self, instance):
         data = super().to_representation(instance)  
-        expand_aluno = self.context.get("expand_aluno", False)  
+        expand_aluno = self.context.get("expand_aluno", False)
+        expand_plano = self.context.get("expand_plano", False)  
+
 
         if expand_aluno:
             data["aluno"] = AlunoSerializer(instance.aluno).data 
 
+        if expand_plano:
+            data["plano"] = PlanoSerializer(instance.plano).data 
+            
         return data
     
     def validate(self, data):
         user = data.get("aluno")
-        plano = data.get("plano")
         data_assinatura = timezone.now().date()
         vencimento_novo = data.get('vencimento')
 
         if not user:
             raise serializers.ValidationError("O campo 'aluno' é obrigatório.")
-        if not plano:
-            raise serializers.ValidationError("O campo 'plano' é obrigatório.")
         if not vencimento_novo:
             raise serializers.ValidationError("O campo 'vencimento' é obrigatório.")
 
-        assinatura_ativa = Assinatura.objects.filter(aluno=user, plano=plano, vencimento__gte=data_assinatura).first()
+        assinatura_ativa = Assinatura.objects.filter(aluno=user, vencimento__gte=data_assinatura).first()
 
         if assinatura_ativa:
-            dias_restantes = (assinatura_ativa.vencimento - data_assinatura).days
-            if dias_restantes < 0:
-                raise serializers.ValidationError("A data de vencimento da nova assinatura não pode ser anterior à assinatura ativa.")
+            raise serializers.ValidationError(("O usuario já possui uma assinatura ativa, não é permitido uma nova renovação"))
             
-            data["vencimento"] = vencimento_novo + timezone.timedelta(days=dias_restantes)
-        else:
-            data["vencimento"] = vencimento_novo
+        data["vencimento"] = vencimento_novo
 
         return data
 

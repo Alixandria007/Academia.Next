@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_list_or_404, get_object_or_404
-from django.db.models import Max
+from django.db.models import Max, Subquery, OuterRef
 from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -67,12 +67,29 @@ class PlanoDetailView(APIView):
 class AssinaturaView(APIView):
     def get(self, request):
         plano = request.GET.get('plano')
+        aluno = request.GET.get('aluno_id')
         ultima_assinatura = models.Assinatura.objects.values('aluno').annotate(ultimo_vencimento=Max('vencimento'))
 
-        if plano:
-            assinaturas = models.Assinatura.objects.filter(plano=plano, aluno__in=[item['aluno'] for item in ultima_assinatura])
+        if aluno:
+             """Consulta detalhada de um aluno especifico"""
+
+             assinatura = models.Assinatura.objects.filter(aluno = aluno, vencimento__gte = timezone.now().date()).last()
+            
+             serializer = serializers.AssinaturaSerializer(assinatura, context={'expand_plano': True})
+
+        elif plano:
+            """Consulta detalhada de um plano especifico"""
+            
+            assinaturas = models.Assinatura.objects.filter(
+                plano=plano,
+                vencimento__gte=timezone.now().date(),
+            )
+
             serializer = serializers.AssinaturaSerializer(assinaturas, many=True, context={'expand_aluno': True})
+
         else:
+            """Consulta mais geral de assinaturas, com aluno como um id"""
+
             assinaturas = models.Assinatura.objects.filter(aluno__in=[item['aluno'] for item in ultima_assinatura])
             serializer = serializers.AssinaturaSerializer(assinaturas, many=True)
 

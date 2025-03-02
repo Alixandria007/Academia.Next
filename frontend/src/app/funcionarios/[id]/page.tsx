@@ -19,8 +19,16 @@ interface Funcionario {
   cref?: string | null;
 }
 
+interface Aula {
+  id: number;
+  nome: string;
+  horario: string;
+  dia_semana: string;
+}
+
 const DetalhesFuncionario: React.FC = () => {
   const [funcionario, setFuncionario] = useState<Funcionario | null>(null);
+  const [aulas, setAulas] = useState<Aula[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
   const API = process.env.NEXT_PUBLIC_API;
@@ -40,6 +48,16 @@ const DetalhesFuncionario: React.FC = () => {
         if (!response.ok) throw new Error('Erro ao buscar detalhes do funcionário');
         const data: Funcionario = await response.json();
         setFuncionario(data);
+
+        if (data.cref) {
+          const aulasResponse = await fetch(`${API}/aula?instrutor_id=${id}/`, {
+            credentials: 'include',
+          });
+          if (aulasResponse.ok) {
+            const aulasData: Aula[] = await aulasResponse.json();
+            setAulas(aulasData);
+          }
+        }
       } catch (error) {
         console.error('Erro ao carregar os detalhes:', error);
       } finally {
@@ -93,7 +111,7 @@ const DetalhesFuncionario: React.FC = () => {
       <div className="flex flex-col items-center">
         {funcionario.foto ? (
           <img
-            src={`http://127.0.0.1:8000/${funcionario.foto}`}
+            src={`${API}/${funcionario.foto}`}
             alt={`${funcionario.first_name} ${funcionario.last_name}`}
             className="w-40 h-40 rounded-full mb-6 shadow-md"
           />
@@ -115,6 +133,30 @@ const DetalhesFuncionario: React.FC = () => {
           <p><strong>📞 Telefone:</strong> {formatPhone(funcionario.telefone) || 'Não informado'}</p>
           {funcionario.cref && <p><strong>🏅 CREF:</strong> {formatarCREF(funcionario.cref)}</p>}
         </div>
+
+        {/* Seção de Aulas Ministradas - Apenas se o funcionário tiver CREF */}
+        {funcionario.cref && (
+          <div className="w-full mt-8 bg-white p-6 rounded-lg shadow-md border border-gray-200">
+            <h3 className="text-2xl font-bold text-gray-700 mb-4 text-center">
+              📚 Aulas Ministradas
+            </h3>
+            {aulas.length === 0 ? (
+              <p className="text-center text-gray-500">Nenhuma aula registrada.</p>
+            ) : (
+              <ul className="space-y-4">
+                {aulas.map((aula) => (
+                  <li key={aula.id} className="p-4 bg-gray-50 rounded-lg shadow-sm border border-gray-300">
+                    <p className="text-lg font-medium text-gray-800">
+                      <strong>📖 Aula:</strong> {aula.nome}
+                    </p>
+                    <p className="text-gray-600"><strong>📅 Dia:</strong> {aula.dia_semana}</p>
+                    <p className="text-gray-600"><strong>⏰ Horário:</strong> {formatTime(aula.horario)}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
 
         <div className="flex justify-center mt-6 space-x-4">
           <button
