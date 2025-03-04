@@ -2,11 +2,12 @@ from rest_framework import serializers
 from ..funcionario.serializers import FuncionarioSerializer
 from .models import Aula, Inscrição, DiaSemana
 from ..aluno.serializers import AlunoSerializer
+from ..plano.serializers import AtividadeExtraSerializer
 
 class AulaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Aula
-        fields = ['id', 'nome', 'vagas', 'horario_inicial', 'horario_final', 'instrutor', 'dias_da_semana']
+        fields = '__all__'
 
 class DiaSemanaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -17,10 +18,11 @@ class AulaSerializerGet(serializers.ModelSerializer):
     instrutor = FuncionarioSerializer()
     dias_da_semana = DiaSemanaSerializer(many = True)
     alunos_inscritos = serializers.SerializerMethodField()
+    tipo_atividade = AtividadeExtraSerializer()
 
     class Meta:
         model = Aula
-        fields = ['id', 'nome', 'vagas', 'horario_inicial', 'horario_final', 'instrutor', 'dias_da_semana', 'alunos_inscritos']
+        fields = "__all__"
 
     def get_alunos_inscritos(self, obj):
         incricoes = Inscrição.objects.filter(aula = obj.id).count()

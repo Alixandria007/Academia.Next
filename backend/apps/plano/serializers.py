@@ -50,7 +50,8 @@ class AssinaturaSerializer(serializers.ModelSerializer):
 
 
 class AtividadeExtraSerializer(serializers.ModelSerializer):
-
+    nome = serializers.CharField(source='get_nome_display', read_only=True)
+     
     class Meta:
         model = AtividadeExtra
         fields = "__all__"

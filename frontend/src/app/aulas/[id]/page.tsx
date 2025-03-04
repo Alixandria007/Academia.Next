@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { formatTime } from '@/utils/formatações';
 import { apiUrl, frontendUrl } from '@/utils/imports';
 import Link from 'next/link';
+import Inscricoes from '@/components/Inscrições';
 
 interface Instrutor {
   id: number;
@@ -27,6 +28,7 @@ interface Aula {
   horario_inicial: string;
   horario_final: string;
   instrutor: Instrutor;
+  tipo_atividade: {nome:string};
   dias_da_semana: { id: number; nome: string }[]; 
   alunos_inscritos: number;
 }
@@ -131,6 +133,7 @@ export default function AulaDetalhes() {
           <p><strong>🕒 Horário:</strong> {formatTime(aula.horario_inicial)} - {formatTime(aula.horario_final)}</p>
           <p><strong>💼 Vagas:</strong> {aula.vagas}</p>
           <p><strong>📚 Alunos Matriculados:</strong> {aula.alunos_inscritos}</p>
+          <p><strong>🎯 Tipo de Atividade:</strong> {aula.tipo_atividade.nome}</p>
           <p><strong>📅 Dias da Semana:</strong> {aula.dias_da_semana.map((dia) => dia.nome).join(', ')}</p>
         </div>
 
@@ -157,28 +160,8 @@ export default function AulaDetalhes() {
       </div>
     </div>
 
-    <div className="bg-white shadow-lg rounded-xl p-8 max-w-4xl mx-auto my-5">
-        <h2 className="text-3xl font-bold text-center mb-6">Inscrições</h2>
-        {inscricoes.length > 0 ? (
-          <ul className="space-y-6">
-            {inscricoes.map((inscricao) => (
-              <li key={inscricao.id} className="p-4 bg-gray-50 rounded-lg shadow-md hover:shadow-lg transition-all">
-                <p className="text-xl font-medium text-gray-800">
-                  {inscricao.aluno.first_name} {inscricao.aluno.last_name}
-                </p>
-                <p className="text-gray-600 mt-2">
-                  <strong>Email:</strong> {inscricao.aluno.email}
-                </p>
-                <p className="text-gray-600 mt-1">
-                  <strong>Data de Inscrição:</strong> {inscricao.data_inscricao}
-                </p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-gray-600 text-center">Nenhuma inscrição encontrada.</p>
-        )}
-      </div>
+    <Inscricoes data = {inscricoes}/>
+    
     </>
   );
 }

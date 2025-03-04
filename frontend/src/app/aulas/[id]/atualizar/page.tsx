@@ -15,14 +15,21 @@ interface DiaSemana {
   nome: string;
 }
 
+interface TipoAtividade {
+  id: number;
+  label: string;
+}
+
 interface AulaFormData {
   nome: string;
   vagas: number;
   horario_inicial: string;
   horario_final: string;
   instrutor: { id: number } | number;
-  dias_da_semana: string[] | {id : string}[] ;
+  dias_da_semana: string[] | { id: string }[];
+  tipo_atividade: { id: number } ;
 }
+
 
 const AtualizarAula = () => {
   const [nome, setNome] = useState<string>('');
@@ -30,14 +37,15 @@ const AtualizarAula = () => {
   const [horarioInicial, setHorarioInicial] = useState<string>('');
   const [horarioFinal, setHorarioFinal] = useState<string>('');
   const [instrutor, setInstrutor] = useState<number>(0);
-  const [diasSemana, setDiasSemana] = useState<string[]>([]);  
+  const [diasSemana, setDiasSemana] = useState<string[]>([]);
+  const [tipoAtividade, setTipoAtividade] = useState<number>(0);  
   const [instrutores, setInstrutores] = useState<Instrutor[]>([]);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
 
   const router = useRouter();
   const { id } = useParams();
-  const API = process.env.NEXT_PUBLIC_API
+  const API = process.env.NEXT_PUBLIC_API;
 
   const diasDaSemanaOpcoes: DiaSemana[] = [
     { id: 1, nome: 'Segunda-feira' },
@@ -49,11 +57,18 @@ const AtualizarAula = () => {
     { id: 7, nome: 'Domingo' },
   ];
 
+  const tiposAtividade: TipoAtividade[] = [
+    { id: 1, label: 'Aulas Coletivas' },
+    { id: 2, label: 'Treinamento Funcional' },
+    { id: 3, label: 'Artes Marciais e Defesa Pessoal' },
+    { id: 4, label: 'Yoga e Alongamento' },
+  ];
+
   useEffect(() => {
     const fetchInstrutores = async () => {
       try {
         const response = await fetch(`${API}/funcionario?instrutores/`, {
-          credentials: 'include'
+          credentials: 'include',
         });
         if (!response.ok) {
           throw new Error('Erro ao carregar os instrutores.');
@@ -74,7 +89,7 @@ const AtualizarAula = () => {
         if (!id) return;
 
         const response = await fetch(`${API}/aula/${id}/`, {
-          credentials: 'include'
+          credentials: 'include',
         });
 
         if (!response.ok) {
@@ -86,13 +101,14 @@ const AtualizarAula = () => {
         setVagas(data.vagas);
         setHorarioInicial(data.horario_inicial);
         setHorarioFinal(data.horario_final);
-        if (data.instrutor !== null){
-        setInstrutor(typeof data.instrutor === 'object' ? data.instrutor.id : data.instrutor);
-}
+        if (data.instrutor !== null) {
+          setInstrutor(typeof data.instrutor === 'object' ? data.instrutor.id : data.instrutor);
+        }
         // @ts-ignore
         const dias = data.dias_da_semana.map((dia) => dia.id);
-        
+
         setDiasSemana(dias);
+        setTipoAtividade(data.tipo_atividade.id); 
       } catch (error) {
         setErrorMessage('Erro ao carregar os dados da aula.');
         console.error(error);
@@ -105,13 +121,14 @@ const AtualizarAula = () => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const dadosAula: AulaFormData = {
+    const dadosAula = {
       nome,
       vagas,
       horario_inicial: horarioInicial,
       horario_final: horarioFinal,
       instrutor,
-      dias_da_semana: diasSemana,  
+      dias_da_semana: diasSemana,
+      tipo_atividade: tipoAtividade,  
     };
 
     try {
@@ -121,7 +138,7 @@ const AtualizarAula = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(dadosAula),
-        credentials: 'include'
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -141,7 +158,7 @@ const AtualizarAula = () => {
 
   const handleDiasSemanaChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const selectedOptions = Array.from(e.target.selectedOptions, (option) => option.value);
-    setDiasSemana(selectedOptions); 
+    setDiasSemana(selectedOptions);
   };
 
   return (
@@ -224,7 +241,7 @@ const AtualizarAula = () => {
           <select
             id="dias_da_semana"
             multiple
-            value={diasSemana}  
+            value={diasSemana}
             onChange={handleDiasSemanaChange}
             className="w-full p-2 border rounded"
             required
@@ -232,6 +249,24 @@ const AtualizarAula = () => {
             {diasDaSemanaOpcoes.map((dia) => (
               <option key={dia.id} value={dia.id.toString()}>
                 {dia.nome}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="tipo_atividade" className="block font-medium mb-1">Tipo de Atividade</label>
+          <select
+            id="tipo_atividade"
+            value={tipoAtividade}
+            onChange={(e) => setTipoAtividade(Number(e.target.value))}
+            className="w-full p-2 border rounded"
+            required
+          >
+            <option value="">Selecione o tipo de atividade</option>
+            {tiposAtividade.map((tipo) => (
+              <option key={tipo.id} value={tipo.id}>
+                {tipo.label}
               </option>
             ))}
           </select>

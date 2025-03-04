@@ -10,6 +10,12 @@ interface Instrutor {
   cref?: string;
 }
 
+interface AtividadeExtra {
+  id: number;
+  nome: string;
+  descricao?: string;
+}
+
 interface AulaFormData {
   nome: string;
   vagas: number;
@@ -17,6 +23,7 @@ interface AulaFormData {
   horario_final: string;
   instrutor: string;
   dias_da_semana: string[];
+  tipo_atividade: string;
 }
 
 const CadastrarAula = () => {
@@ -26,17 +33,19 @@ const CadastrarAula = () => {
   const [horarioFinal, setHorarioFinal] = useState<string>('');
   const [instrutor, setInstrutor] = useState<string>('');
   const [diasSemana, setDiasSemana] = useState<string[]>([]);
+  const [tipoAtividade, setTipoAtividade] = useState<string>('');
   const [instrutores, setInstrutores] = useState<Instrutor[]>([]);
+  const [atividades, setAtividades] = useState<AtividadeExtra[]>([]);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
 
   const router = useRouter();
-  const API = process.env.NEXT_PUBLIC_API
+  const API = process.env.NEXT_PUBLIC_API;
 
   useEffect(() => {
     const fetchInstrutores = async () => {
       try {
-        const response = await fetch(`${API}/funcionario?instrutores="True"/`,{
+        const response = await fetch(`${API}/funcionario?instrutores="True"/`, {
           credentials: 'include'
         });
 
@@ -52,7 +61,26 @@ const CadastrarAula = () => {
       }
     };
 
+    const fetchAtividades = async () => {
+      try {
+        const response = await fetch(`${API}/plano/atividade_extra/`, {
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error('Erro ao carregar os tipos de atividade.');
+        }
+
+        const data = await response.json();
+        setAtividades(data);
+      } catch (error) {
+        setErrorMessage('Erro ao carregar os tipos de atividade.');
+        console.error(error);
+      }
+    };
+
     fetchInstrutores();
+    fetchAtividades();
   }, []);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -65,6 +93,7 @@ const CadastrarAula = () => {
       horario_final: horarioFinal,
       instrutor,
       dias_da_semana: diasSemana,
+      tipo_atividade: tipoAtividade,
     };
 
     try {
@@ -167,6 +196,24 @@ const CadastrarAula = () => {
             {instrutores.map((inst) => (
               <option key={inst.id} value={inst.id}>
                 {inst.first_name} {inst.last_name} {inst.cref ? `- CREF: ${inst.cref}` : ''}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="tipo_atividade" className="block font-medium mb-1">Tipo de Atividade</label>
+          <select
+            id="tipo_atividade"
+            value={tipoAtividade}
+            onChange={(e) => setTipoAtividade(e.target.value)}
+            className="w-full p-2 border rounded"
+            required
+          >
+            <option value="">Selecione um tipo</option>
+            {atividades.map((atividade) => (
+              <option key={atividade.id} value={atividade.id}>
+                {atividade.nome}
               </option>
             ))}
           </select>

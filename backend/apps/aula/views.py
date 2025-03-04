@@ -103,4 +103,17 @@ class InscriçãoView(APIView):
             return Response({"detail":"Aluno já esta inscrito na aula!!"}, status=status.HTTP_400_BAD_REQUEST)
         
         return Response({"detail":"Erro ao inscrever aluno!!"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request):
+        inscricao_id = request.GET.get('inscricao_id')
+
+        if not inscricao_id:
+            return Response({'error': 'ID da inscrição não fornecido.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            inscricao = models.Inscricao.objects.get(id=inscricao_id)
+            inscricao.delete() 
+            return Response({'success': 'Inscrição apagada com sucesso!'}, status=status.HTTP_204_NO_CONTENT)
+        except models.Inscricao.DoesNotExist:
+            return Response({'error': 'Inscrição não encontrada.'}, status=status.HTTP_404_NOT_FOUND)
 
