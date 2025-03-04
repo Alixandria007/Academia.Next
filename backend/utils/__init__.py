@@ -5,3 +5,4 @@ def create_activity(tipo: str, descricao: str):
                 tipo_acao = tipo,
                 descricao = descricao
             ))
+

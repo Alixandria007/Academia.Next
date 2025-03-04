@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 from apps.plano.models import AtividadeExtra
 from ..funcionario.models import Funcionario
-from ..aluno.models import Aluno
+from ..plano.models import Assinatura
 
 # Create your models here.
 
@@ -52,15 +52,15 @@ class Inscrição(models.Model):
         verbose_name = 'Inscricoes'
 
     aula = models.ForeignKey(Aula, on_delete=models.CASCADE)
-    aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE)
+    assinatura = models.ForeignKey(Assinatura, on_delete=models.CASCADE, default=3) 
     data_inscricao = models.DateField(default=current_date)
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['aula', 'aluno'],
-                name='unique_aula_aluno',
-                violation_error_message='Este aluno já esta inscrito na aula!!!'
+                fields=['aula', 'assinatura'],  
+                name='unique_aula_assinatura',
+                violation_error_message='Esta assinatura já está inscrita na aula!!!'
             )
         ]
 

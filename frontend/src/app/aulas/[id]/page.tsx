@@ -39,12 +39,11 @@ export default function AulaDetalhes() {
   const [aula, setAula] = useState<Aula | null>(null);
   const [inscricoes, setInscricoes] = useState<Inscricao[]>([]);
   const [errorMessage, setErrorMessage] = useState<string>('');
-  const API = process.env.NEXT_PUBLIC_API;
 
   useEffect(() => {
     const fetchAulaDetails = async () => {
       try {
-        const response = await fetch(`${API}/aula/${id}/`, { credentials: 'include' });
+        const response = await fetch(`${apiUrl()}/aula/${id}/`, { credentials: 'include' });
 
         if (response.ok) {
           const data = await response.json();
@@ -60,7 +59,7 @@ export default function AulaDetalhes() {
 
     const fetchInscricoes = async () => {
       try {
-        const response = await fetch(`${API}/aula/${id}/inscricao/`, { credentials: 'include' });
+        const response = await fetch(`${apiUrl()}/aula/${id}/inscricao/`, { credentials: 'include' });
 
         if (response.ok) {
           const data = await response.json();
@@ -80,7 +79,7 @@ export default function AulaDetalhes() {
 
   const handleDelete = async () => {
     try {
-      const response = await fetch(`${API}/aula/${id}/`, {
+      const response = await fetch(`${apiUrl()}/aula/${id}/`, {
         method: 'DELETE',
         credentials: 'include',
       });

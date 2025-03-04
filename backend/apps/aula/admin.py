@@ -11,7 +11,7 @@ class AulaAdmin(admin.ModelAdmin):
 
 @admin.register(models.Inscrição)
 class InscricaoAdmin(admin.ModelAdmin):
-    list_display = 'id', 'aluno', 'aula'
+    list_display = 'id', 'assinatura', 'aula'
     list_display_links = 'id',
     ordering = '-id',
 

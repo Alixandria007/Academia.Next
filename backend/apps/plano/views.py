@@ -68,6 +68,7 @@ class AssinaturaView(APIView):
     def get(self, request):
         plano = request.GET.get('plano')
         aluno = request.GET.get('aluno_id')
+        tipo_atividades = request.GET.get('tipo_atividade')
         ultima_assinatura = models.Assinatura.objects.values('aluno').annotate(ultimo_vencimento=Max('vencimento'))
 
         if aluno:
@@ -82,6 +83,15 @@ class AssinaturaView(APIView):
             
             assinaturas = models.Assinatura.objects.filter(
                 plano=plano,
+                vencimento__gte=timezone.now().date(),
+            )
+
+            serializer = serializers.AssinaturaSerializer(assinaturas, many=True, context={'expand_aluno': True})
+        
+        #Consulta detalhada de um tipo de atividade especifico
+        elif tipo_atividades:
+            assinaturas = models.Assinatura.objects.filter(
+                plano__atividade_extra__in = tipo_atividades ,
                 vencimento__gte=timezone.now().date(),
             )
 
