@@ -50,12 +50,6 @@ class Inscrição(models.Model):
     class Meta: 
         verbose_name = 'Inscrição'
         verbose_name = 'Inscricoes'
-
-    aula = models.ForeignKey(Aula, on_delete=models.CASCADE)
-    assinatura = models.ForeignKey(Assinatura, on_delete=models.CASCADE, default=3) 
-    data_inscricao = models.DateField(default=current_date)
-
-    class Meta:
         constraints = [
             models.UniqueConstraint(
                 fields=['aula', 'assinatura'],  
@@ -64,5 +58,10 @@ class Inscrição(models.Model):
             )
         ]
 
+    aula = models.ForeignKey(Aula, on_delete=models.CASCADE)
+    data_inscricao = models.DateField(default=current_date)
+    assinatura = models.ForeignKey(Assinatura, on_delete=models.CASCADE) 
+
+        
     def __str__(self) -> str:
         return f'Inscrição nº{self.id}'

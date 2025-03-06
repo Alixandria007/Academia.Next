@@ -4,7 +4,7 @@ from . import models
 class AlunoSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Aluno
-        fields = 'id', 'first_name', 'last_name', 'email','cpf', 'telefone', 'data_de_nascimento','ativo'
+        fields = "__all__"
 
 class AvaliaçãoFisicaSerializer(serializers.ModelSerializer):
     class Meta:

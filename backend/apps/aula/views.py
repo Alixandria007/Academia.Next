@@ -97,12 +97,9 @@ class InscriçãoView(APIView):
                 tipo = 'inscricao',
                 descricao = f'Inscrição feita na aula "{serializer.validated_data['aula'].nome}"!!!'
             )
-            return Response({"detail":"Inscrição feita com sucesso!!", 'errors': serializer.errors}, status= status.HTTP_201_CREATED)
+            return Response({"detail":"Inscrição feita com sucesso!!"}, status= status.HTTP_201_CREATED)
         
-        if models.Inscrição.objects.filter(aula = data.get("aula"), aluno = data.get("aluno")).exists():
-            return Response({"detail":"Aluno já esta inscrito na aula!!"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        return Response({"detail":"Erro ao inscrever aluno!!"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail":"Erro ao inscrever aluno!!", 'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
     
     def delete(self, request):
         inscricao_id = request.GET.get('inscricao_id')

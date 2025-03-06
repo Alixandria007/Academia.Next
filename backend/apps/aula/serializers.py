@@ -1,8 +1,7 @@
 from rest_framework import serializers
 from ..funcionario.serializers import FuncionarioSerializer
 from .models import Aula, Inscrição, DiaSemana
-from ..aluno.serializers import AlunoSerializer
-from ..plano.serializers import AtividadeExtraSerializer
+from ..plano.serializers import AtividadeExtraSerializer, AssinaturaSerializer
 
 class AulaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -31,11 +30,11 @@ class AulaSerializerGet(serializers.ModelSerializer):
 class InscriçãoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Inscrição
-        fields = ['id', 'aula', 'aluno', 'data_inscricao']
+        fields = '__all__'
 
 class InscriçãoSerializerGet(serializers.ModelSerializer):
-    aluno = AlunoSerializer()
+    assinatura = AssinaturaSerializer(context = {'expand_aluno': True})
 
     class Meta:
         model = Inscrição
-        fields = ['id', 'aula', 'aluno', 'data_inscricao']
+        fields = "__all__"

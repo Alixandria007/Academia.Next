@@ -4,8 +4,8 @@ const QuickActions = () => {
   const actions = [
     { label: 'Cadastrar Aluno', href: '/alunos/cadastrar' },
     { label: 'Registrar Aula', href: '/aulas/cadastrar' },
-    { label: 'Gerar Relatório', href: '#' },
-    { label: 'Configurar Planos', href: '/planos/' },
+    { label: 'Cadastrar Funcionarios', href: '/funcionarios/cadastrar' },
+    { label: 'Configurar Planos', href: '/planos/cadastrar' },
   ];
 
   return (

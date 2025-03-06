@@ -3,10 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { formatDate, formatDuracao, formatMoney } from '@/utils/formatações';
-import Link from 'next/link';
 import { frontendUrl } from '@/utils/imports';
+import Link from 'next/link';
+import Assinaturas from '@/components/Assinaturas';
 
 interface Plano {
+  id: number
   nome: string;
   valor: number;
   duracao: string;
@@ -120,83 +122,52 @@ export default function DetalhesPlano() {
   );
 
   return (
-    <div className="max-w-4xl mx-auto mb-10 p-8 bg-white shadow-lg rounded-xl">
-      <h1 className="text-4xl font-bold mb-6 text-center text-blue-600">{plano.nome}</h1>
+    <>
+      <div className="max-w-4xl mx-auto my-10 p-8 bg-white shadow-lg rounded-3xl border border-gray-200">
+        <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">{plano.nome}</h1>
 
-      <div className="w-full bg-gray-100 p-6 rounded-lg shadow-sm mt-6">
-        <p><strong>📅 Nome do Plano:</strong> {plano.nome}</p>
-        <p><strong>💰 Valor:</strong> {formatMoney(plano.valor)}</p>
-        <p><strong>⏳ Duração:</strong> {formatDuracao(plano.duracao)}</p>
-        <p><strong>🎯 Atividades Extras:</strong></p>
-        {plano.atividade_extra.length > 0 ? (
-          <ul className="mt-2 space-y-2">
-            {plano.atividade_extra.map((atividadeId) => {
-              const atividade = atividades.find((item) => item.id === atividadeId);
-              return atividade ? (
-                <li key={atividade.id} className="text-gray-700">{atividade.descricao}</li>
-              ) : null;
-            })}
-          </ul>
-        ) : (
-          <p className="text-gray-500">Nenhuma atividade extra cadastrada.</p>
+        {error && (
+          <div className="p-4 mb-6 text-red-700 bg-red-100 text-center rounded-lg">
+            {error}
+          </div>
         )}
+
+        <div className="w-full bg-gray-100 p-6 rounded-lg shadow-sm mb-8">
+          <p><strong>📅 Nome do Plano:</strong> {plano.nome}</p>
+          <p><strong>💰 Valor:</strong> {formatMoney(plano.valor)}</p>
+          <p><strong>⏳ Duração:</strong> {formatDuracao(plano.duracao)}</p>
+          <p><strong>🎯 Atividades Extras:</strong></p>
+          {plano.atividade_extra.length > 0 ? (
+            <ul className="mt-2 space-y-2">
+              {plano.atividade_extra.map((atividadeId) => {
+                const atividade = atividades.find((item) => item.id === atividadeId);
+                return atividade ? (
+                  <li key={atividade.id} className="text-gray-700">{atividade.descricao}</li>
+                ) : null;
+              })}
+            </ul>
+          ) : (
+            <p className="text-gray-500">Nenhuma atividade extra cadastrada.</p>
+          )}
+        </div>
+
+        <div className="flex justify-center mt-6 space-x-4">
+          <button
+            onClick={() => router.push(`/planos/${plano.id}/atualizar`)}
+            className="px-5 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition"
+          >
+            ✏️ Editar Plano
+          </button>
+          <button
+            onClick={() => router.push('/planos/')}
+            className="px-5 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
+          >
+            ↩ Voltar
+          </button>
+        </div>
       </div>
 
-      <div className="flex justify-center mt-6 space-x-4">
-        <button
-          onClick={() => router.push(`/planos/${plano.nome}/editar`)}
-          className="px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition"
-        >
-          ✏️ Editar
-        </button>
-        <button
-          onClick={() => router.push('/planos/')}
-          className="px-5 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
-        >
-          ↩ Voltar
-        </button>
-      </div>
-
-      <div className="bg-white shadow-lg rounded-xl p-8 mt-10">
-        <h2 className="text-3xl font-bold text-blue-600 text-center mb-6">Assinaturas Ativas</h2>
-
-        <input
-          type="text"
-          placeholder="Buscar aluno..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full p-3 border border-gray-300 rounded-lg mb-4"
-        />
-
-        {filteredAssinaturas.length > 0 ? (
-          <ul className="space-y-4">
-            {filteredAssinaturas.map((assinatura) => (
-              <li
-                key={assinatura.id}
-                className="p-4 bg-gray-50 rounded-lg shadow-md hover:shadow-lg transition-all"
-              >
-                <p className="text-xl font-medium text-blue-700">
-                  <Link href={`${frontendUrl()}/alunos/${assinatura.aluno.id}`}>{assinatura.aluno.first_name} {assinatura.aluno.last_name}</Link>
-                </p>
-                <p className="text-gray-600 mt-2">
-                  <strong>ID:</strong> {assinatura.aluno.id}
-                </p>
-                <p className="text-gray-600 mt-1">
-                  <strong>Email:</strong> {assinatura.aluno.email}
-                </p>
-                <p className="text-gray-600 mt-1">
-                  <strong>Data de Assinatura:</strong> {formatDate(assinatura.data_assinatura)}
-                </p>
-                <p className="text-gray-600 mt-1">
-                  <strong>Vencimento:</strong> {formatDate(assinatura.vencimento)}
-                </p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-gray-600 text-center">Nenhuma assinatura encontrada.</p>
-        )}
-      </div>
-    </div>
+      <Assinaturas data={filteredAssinaturas} searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+    </>
   );
 }

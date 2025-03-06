@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { formatarCREF, formatCPF, formatDate, formatMoney, formatPhone, formatTime } from '@/utils/formatações';
 import Link from 'next/link';
+import { apiUrl, frontendUrl } from '@/utils/imports';
 
 interface Funcionario {
   id: number;
@@ -26,7 +27,7 @@ interface Aula {
   alunos_inscritos: number;
   horario_inicial: string;
   horario_final: string;
-  dias_da_semana: {nome:string}[];
+  dias_da_semana: { nome: string }[];
 }
 
 const DetalhesFuncionario: React.FC = () => {
@@ -34,8 +35,6 @@ const DetalhesFuncionario: React.FC = () => {
   const [aulas, setAulas] = useState<Aula[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
-  const API = process.env.NEXT_PUBLIC_API;
-  const baseUrl = process.env.NEXT_PUBLIC_FRONTEND_URL 
   const { id } = useParams();
 
   useEffect(() => {
@@ -46,7 +45,7 @@ const DetalhesFuncionario: React.FC = () => {
 
     const fetchFuncionario = async () => {
       try {
-        const response = await fetch(`${API}/funcionario/${id}/`, {
+        const response = await fetch(`${apiUrl()}/funcionario/${id}/`, {
           credentials: 'include',
         });
         if (!response.ok) throw new Error('Erro ao buscar detalhes do funcionário');
@@ -54,7 +53,7 @@ const DetalhesFuncionario: React.FC = () => {
         setFuncionario(data);
 
         if (data.cref) {
-          const aulasResponse = await fetch(`${API}/aula/?instrutor_id=${id}`, {
+          const aulasResponse = await fetch(`${apiUrl()}/aula/?instrutor_id=${id}`, {
             credentials: 'include',
           });
           if (aulasResponse.ok) {
@@ -79,7 +78,7 @@ const DetalhesFuncionario: React.FC = () => {
   const handleDelete = async () => {
     if (confirm('Tem certeza que deseja excluir este funcionário?')) {
       try {
-        const response = await fetch(`${API}/funcionario/${id}/`, {
+        const response = await fetch(`${apiUrl()}/funcionario/${id}/`, {
           method: 'DELETE',
           credentials: 'include',
         });
@@ -100,92 +99,89 @@ const DetalhesFuncionario: React.FC = () => {
   }
 
   if (!funcionario) {
-    return (
-      <div className="text-center text-red-500 mt-10">
-        Funcionário não encontrado.
-      </div>
-    );
+    return <div className="text-center text-red-500 mt-10">Funcionário não encontrado.</div>;
   }
 
   return (
     <>
-      <div className="max-w-4xl mx-auto mb-10 p-8 bg-white shadow-lg rounded-xl">
-        <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
-          Detalhes do Funcionário
-        </h1>
-        <div className="flex flex-col items-center">
-          {funcionario.foto ? (
-            <img
-              src={`${API}/${funcionario.foto}`}
-              alt={`${funcionario.first_name} ${funcionario.last_name}`}
-              className="w-40 h-40 rounded-full mb-6 shadow-md"
-            />
-          ) : (
-            <div className="w-40 h-40 bg-gray-200 rounded-full mb-6 flex items-center justify-center shadow-md">
-              <span className="text-gray-500">Sem Foto</span>
-            </div>
-          )}
-          <h2 className="text-2xl font-semibold text-gray-700">
-            {funcionario.first_name} {funcionario.last_name}
-          </h2>
-          <p className="text-gray-500 text-lg mb-6">{funcionario.email}</p>
+    <div className="max-w-4xl mx-auto my-10 p-8 bg-white shadow-lg rounded-3xl border border-gray-200">
+      <h1 className="text-3xl font-bold mb-8 text-center text-gray-800">Detalhes do Funcionário</h1>
 
-          <div className="w-full bg-gray-100 p-6 rounded-lg shadow-sm">
-            <p><strong>📅 Admissão:</strong> {formatDate(funcionario.data_admissao)}</p>
-            <p><strong>🕒 Horário:</strong> {formatTime(funcionario.entrada)} - {formatTime(funcionario.saida)}</p>
-            <p><strong>💰 Salário:</strong> {formatMoney(Number(funcionario.salario))}</p>
-            <p><strong>🆔 CPF:</strong> {formatCPF(funcionario.cpf)}</p>
-            <p><strong>📞 Telefone:</strong> {formatPhone(funcionario.telefone) || 'Não informado'}</p>
-            {funcionario.cref && <p><strong>🏅 CREF:</strong> {formatarCREF(funcionario.cref)}</p>}
+      <div className="flex flex-col items-center mb-8">
+        {funcionario.foto ? (
+          <img
+            src={`${apiUrl()}/${funcionario.foto}`}
+            alt={`${funcionario.first_name} ${funcionario.last_name}`}
+            className="w-40 h-40 rounded-full mb-6 shadow-md"
+          />
+        ) : (
+          <div className="w-40 h-40 bg-gray-200 rounded-full mb-6 flex items-center justify-center shadow-md">
+            <span className="text-gray-500">Sem Foto</span>
           </div>
+        )}
 
-          <div className="flex justify-center mt-6 space-x-4">
-            <button
-              onClick={handleUpdate}
-              className="px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition"
-            >
-              ✏️ Atualizar
-            </button>
-            <button
-              onClick={handleDelete}
-              className="px-5 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 transition"
-            >
-              🗑 Excluir
-            </button>
-          </div>
+        <h2 className="text-2xl font-semibold text-gray-700">
+          {funcionario.first_name} {funcionario.last_name}
+        </h2>
+        <p className="text-gray-500 text-lg mb-6">{funcionario.email}</p>
+
+        <div className="bg-gray-100 p-6 rounded-lg shadow-sm w-full">
+          <p><strong>📅 Admissão:</strong> {formatDate(funcionario.data_admissao)}</p>
+          <p><strong>🕒 Horário:</strong> {formatTime(funcionario.entrada)} - {formatTime(funcionario.saida)}</p>
+          <p><strong>💰 Salário:</strong> {formatMoney(Number(funcionario.salario))}</p>
+          <p><strong>🆔 CPF:</strong> {formatCPF(funcionario.cpf)}</p>
+          <p><strong>📞 Telefone:</strong> {formatPhone(funcionario.telefone) || 'Não informado'}</p>
+          {funcionario.cref && <p><strong>🏅 CREF:</strong> {formatarCREF(funcionario.cref)}</p>}
         </div>
       </div>
 
-      {funcionario.cref && (
-        <div className="max-w-4xl mx-auto mb-10 p-8 bg-white shadow-lg rounded-xl">
-          <h3 className="text-2xl font-bold text-gray-700 mb-4 text-center">
-          🏃‍♂️ Aulas Ministradas
-          </h3>
+      {/* Botões de Ação */}
+      <div className="flex justify-center space-x-4 mb-10">
+        <button
+          onClick={handleUpdate}
+          className="px-5 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition"
+        >
+          ✏️ Atualizar
+        </button>
+        <button
+          onClick={handleDelete}
+          className="px-5 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 transition"
+        >
+          🗑 Excluir
+        </button>
+      </div>
+    </div>
+
+    {funcionario.cref && (
+      <div className="max-w-4xl mx-auto my-10 p-8 bg-white shadow-lg rounded-3xl border border-gray-200">
+        <div className="bg-white p-8 rounded-xl shadow-lg">
+          <h3 className="text-2xl font-semibold text-gray-700 mb-6 text-center">🏃‍♂️ Aulas Ministradas</h3>
+
           {aulas.length === 0 ? (
             <p className="text-center text-gray-500">Nenhuma aula registrada.</p>
           ) : (
-            <ul className="space-y-4">
+            <ul className="space-y-6">
               {aulas.map((aula) => (
-                <li key={aula.id} className="p-4 bg-gray-50 rounded-lg shadow-sm border border-gray-300">
+                <li key={aula.id} className="p-6 bg-gray-50 rounded-lg shadow-sm border border-gray-200">
                   <p className="text-lg font-medium text-gray-800">
-                    <strong>📖 Aula:</strong> <Link href={`${baseUrl}/aulas/${aula.id}`} className='text-blue-600'>{aula.nome}</Link>
+                    📖 Aula: <Link href={`${frontendUrl()}/aulas/${aula.id}`} className="text-blue-600">{aula.nome}</Link>
                   </p>
                   <p className="text-gray-600">
-                    <strong>📅 Dia:</strong>{" "}
-                    {aula.dias_da_semana
-                      ? aula.dias_da_semana.map(dia => dia.nome).join(', ')
-                      : "Não informado"}
+                    📅 Dias: {aula.dias_da_semana.map(dia => dia.nome).join(', ')}
                   </p>
-                  <p className="text-gray-600"><strong>⏰ Horário:</strong> {`${formatTime(aula.horario_inicial)} - ${formatTime(aula.horario_final)}` }</p>
-                  <p className="text-gray-600"><strong>🏋️‍♂️ Alunos:</strong> {aula.alunos_inscritos}</p>
+                  <p className="text-gray-600">
+                    ⏰ Horário: {`${formatTime(aula.horario_inicial)} - ${formatTime(aula.horario_final)}`}
+                  </p>
+                  <p className="text-gray-600">🏋️‍♂️ Alunos: {aula.alunos_inscritos}</p>
                 </li>
               ))}
             </ul>
           )}
         </div>
-      )}
+      </div>
+    )}
     </>
-      );
-    };
+  );
+};
 
 export default DetalhesFuncionario;

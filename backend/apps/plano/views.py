@@ -73,9 +73,11 @@ class AssinaturaView(APIView):
 
         if aluno:
              """Consulta detalhada de um aluno especifico"""
-
-             assinatura = models.Assinatura.objects.filter(aluno = aluno, vencimento__gte = timezone.now().date()).last()
             
+             assinatura = models.Assinatura.objects.filter(aluno = aluno, vencimento__gte = timezone.now().date()).last()
+             
+             if not assinatura:
+                 raise Http404('Este aluno não possui assinatura ativa')
              serializer = serializers.AssinaturaSerializer(assinatura, context={'expand_plano': True})
 
         elif plano:

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { apiUrl } from '@/utils/imports';
 
 interface Plano {
   nome: string;
@@ -18,7 +19,6 @@ interface AtividadeExtra {
 export default function AtualizarPlano() {
   const { id } = useParams();
   const router = useRouter();
-  const API = process.env.NEXT_PUBLIC_API;
 
   const [plano, setPlano] = useState<Plano>({
     nome: '',
@@ -34,7 +34,7 @@ export default function AtualizarPlano() {
   useEffect(() => {
     async function fetchPlanoDetails() {
       try {
-        const response = await fetch(`${API}/plano/${id}/`, {
+        const response = await fetch(`${apiUrl()}/plano/${id}/`, {
           credentials: 'include',
         });
 
@@ -52,7 +52,7 @@ export default function AtualizarPlano() {
 
     async function fetchAtividades() {
       try {
-        const response = await fetch(`${API}/plano/atividade_extra/`, {
+        const response = await fetch(`${apiUrl()}/plano/atividade_extra/`, {
           credentials: 'include',
         });
         if (response.ok) {
@@ -90,7 +90,7 @@ export default function AtualizarPlano() {
     setSuccessMessage('');
 
     try {
-      const response = await fetch(`${API}/plano/${id}/`, {
+      const response = await fetch(`${apiUrl()}/plano/${id}/`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

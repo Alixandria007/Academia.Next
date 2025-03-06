@@ -10,6 +10,7 @@ interface AlunoFormData {
   cpf: string;
   telefone: string;
   data_de_nascimento: string;
+  foto?: File | null;
 }
 
 export default function CadastrarAluno() {
@@ -23,6 +24,7 @@ export default function CadastrarAluno() {
     cpf: '',
     telefone: '',
     data_de_nascimento: '',
+    foto: null, // Novo campo para armazenar a foto
   });
 
   const [successMessage, setSuccessMessage] = useState<string>('');
@@ -40,34 +42,54 @@ export default function CadastrarAluno() {
     setFormData({ ...formData, [name]: formattedValue });
   };
 
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFormData({ ...formData, foto: e.target.files[0] });
+    }
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
     try {
-      const FetchCreateAluno = async () => {
-        const response = await fetch(`${API}/aluno/`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify(formData),
-        });
-      };
+      const formDataToSend = new FormData();
+      // Adiciona os dados do formulário
+      formDataToSend.append('first_name', formData.first_name);
+      formDataToSend.append('last_name', formData.last_name);
+      formDataToSend.append('email', formData.email);
+      formDataToSend.append('cpf', formData.cpf);
+      formDataToSend.append('telefone', formData.telefone);
+      formDataToSend.append('data_de_nascimento', formData.data_de_nascimento);
 
-      FetchCreateAluno();
-      console.log('Dados enviados:', formData);
-      setSuccessMessage('Aluno cadastrado com sucesso!');
+      // Adiciona a foto, se houver
+      if (formData.foto) {
+        formDataToSend.append('foto', formData.foto);
+      }
 
-      setFormData({
-        first_name: '',
-        last_name: '',
-        email: '',
-        cpf: '',
-        telefone: '',
-        data_de_nascimento: '',
+      const response = await fetch(`${API}/aluno/`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+        },
+        credentials: 'include',
+        body: formDataToSend,
       });
 
-      router.push('/alunos');
+      if (response.ok) {
+        setSuccessMessage('Aluno cadastrado com sucesso!');
+        setFormData({
+          first_name: '',
+          last_name: '',
+          email: '',
+          cpf: '',
+          telefone: '',
+          data_de_nascimento: '',
+          foto: null,
+        });
+        router.push('/alunos');
+      } else {
+        console.error('Erro ao cadastrar aluno:', await response.text());
+      }
     } catch (error) {
       console.error('Erro ao cadastrar aluno:', error);
     }
@@ -75,14 +97,14 @@ export default function CadastrarAluno() {
 
   const formatCPF = (value: string): string => {
     return value
-      .replace(/\D/g, '') 
-      .replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, '$1.$2.$3-$4'); // Aplica a máscara de CPF
+      .replace(/\D/g, '')
+      .replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, '$1.$2.$3-$4');
   };
-  
+
   const formatPhone = (value: string): string => {
     return value
-      .replace(/\D/g, '') 
-      .replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3'); 
+      .replace(/\D/g, '')
+      .replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
   };
 
   return (
@@ -176,6 +198,19 @@ export default function CadastrarAluno() {
             value={formData.data_de_nascimento}
             onChange={handleInputChange}
             required
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+        <div className="mb-4">
+          <label htmlFor="foto" className="block text-sm font-medium text-gray-700">
+            Foto
+          </label>
+          <input
+            type="file"
+            id="foto"
+            name="foto"
+            accept="image/*"
+            onChange={handleFileChange}
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           />
         </div>

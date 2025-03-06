@@ -12,6 +12,7 @@ interface Aluno {
   cpf: string;
   telefone: string;
   data_de_nascimento: string;
+  foto?: string; // Campo foto
 }
 
 export default function UpdateAluno() {
@@ -20,6 +21,7 @@ export default function UpdateAluno() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string>('');
+  const [file, setFile] = useState<File | null>(null); // Estado para armazenar o arquivo da foto
   const API = process.env.NEXT_PUBLIC_API;
   const router = useRouter();
 
@@ -27,7 +29,7 @@ export default function UpdateAluno() {
     const fetchAluno = async () => {
       try {
         const response = await fetch(`${API}/aluno/${id}/`, {
-          credentials: "include"
+          credentials: 'include',
         });
         if (!response.ok) throw new Error('Erro ao carregar dados do aluno');
 
@@ -55,30 +57,47 @@ export default function UpdateAluno() {
     }
   };
 
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const selectedFile = e.target.files[0];
+      setFile(selectedFile);
+    }
+  };
+
   const handleUpdate = async (e: FormEvent) => {
     e.preventDefault();
     if (!aluno) return;
-
+  
+    const formData = new FormData();
+    
+    // Adiciona os campos do aluno ao FormData com verificação de undefined
+    Object.keys(aluno).forEach((key) => {
+      if (aluno[key as keyof Aluno] !== undefined) {
+        formData.append(key, String(aluno[key as keyof Aluno]));
+      }
+    });
+  
+    // Se houver uma foto selecionada, adiciona ao FormData
+    if (file) {
+      formData.append('foto', file);
+    }
+  
     try {
       const response = await fetch(`${API}/aluno/${id}/`, {
-        method: 'PATCH', 
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(aluno),
+        method: 'PATCH',
+        body: formData,
         credentials: 'include',
       });
-
+  
       if (!response.ok) throw new Error('Erro ao atualizar aluno');
-
+  
       setSuccessMessage('Aluno atualizado com sucesso!');
       setTimeout(() => router.push(`/alunos/${id}`), 2000);
     } catch (error) {
       setError('Erro ao atualizar aluno. Tente novamente.');
     }
   };
-
-
+  
   if (loading) return <p>Carregando...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
   if (!aluno) return <p>Aluno não encontrado.</p>;
@@ -166,6 +185,21 @@ export default function UpdateAluno() {
             className="mt-1 p-2 border border-gray-300 rounded-md w-full"
             required
           />
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">Foto</label>
+          <input
+            type="file"
+            name="foto"
+            onChange={handleFileChange}
+            className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+          />
+          {aluno.foto && (
+            <div className="mt-2">
+              <img src={`${API}/media/${aluno.foto}`} alt="Foto do aluno" className="w-32 h-32 object-cover rounded" />
+            </div>
+          )}
         </div>
 
         <div className="flex space-x-4">

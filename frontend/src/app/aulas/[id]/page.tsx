@@ -15,12 +15,6 @@ interface Instrutor {
   foto?: string;
 }
 
-interface Inscricao {
-  id: number;
-  aluno: { id: number; first_name: string; last_name: string; email: string };
-  data_inscricao: string;
-}
-
 interface Aula {
   id: number;
   nome: string;
@@ -37,7 +31,7 @@ export default function AulaDetalhes() {
   const { id } = useParams();
   const router = useRouter();
   const [aula, setAula] = useState<Aula | null>(null);
-  const [inscricoes, setInscricoes] = useState<Inscricao[]>([]);
+  const [inscricoes, setInscricoes] = useState<[]>([]);
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   useEffect(() => {
@@ -102,7 +96,7 @@ export default function AulaDetalhes() {
 
   return (
     <>
-    <div className="max-w-4xl mx-auto mb-10 p-8 bg-white shadow-lg rounded-xl">
+    <div className="max-w-4xl mx-auto my-10 p-8 bg-white shadow-lg rounded-3xl border border-gray-200">
       <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">{aula.nome}</h1>
 
       {errorMessage && (

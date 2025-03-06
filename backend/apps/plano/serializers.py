@@ -12,7 +12,7 @@ class AssinaturaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Assinatura
-        fields = 'id', 'aluno', 'plano','total', 'data_assinatura', 'vencimento'
+        fields = '__all__'
 
     def to_representation(self, instance):
         data = super().to_representation(instance)  

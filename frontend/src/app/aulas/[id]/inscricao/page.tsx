@@ -35,7 +35,6 @@ export default function InscricaoAula() {
   const [tipoAtividadeId, setTipoAtividadeId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // Função auxiliar para buscar o tipo de atividade
   const fetchTipoAtividade = useCallback(async () => {
     try {
       const response = await fetch(`${apiUrl()}/aula/${aulaId}/`, { credentials: 'include' });
@@ -49,7 +48,6 @@ export default function InscricaoAula() {
     }
   }, [aulaId]);
 
-  // Função auxiliar para buscar os alunos
   const fetchAlunos = useCallback(async () => {
     if (!tipoAtividadeId) return;
     try {
@@ -70,17 +68,14 @@ export default function InscricaoAula() {
     }
   }, [tipoAtividadeId]);
 
-  // Busca o tipo de atividade ao carregar o componente
   useEffect(() => {
     if (aulaId) fetchTipoAtividade();
   }, [aulaId, fetchTipoAtividade]);
 
-  // Busca os alunos quando o tipo de atividade estiver disponível
   useEffect(() => {
     fetchAlunos();
   }, [tipoAtividadeId, fetchAlunos]);
 
-  // Função para lidar com a busca
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const term = event.target.value.toLowerCase();
     setSearchTerm(term);
@@ -93,7 +88,6 @@ export default function InscricaoAula() {
     setFilteredAlunos(filtered);
   };
 
-  // Função para lidar com a inscrição
   const handleInscricao = async () => {
     if (!selectedAluno) {
       alert('Por favor, selecione um aluno para realizar a inscrição.');
@@ -104,7 +98,7 @@ export default function InscricaoAula() {
       const response = await fetch(`${apiUrl()}/aula/inscricao/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ aluno: selectedAluno.aluno.id, aula: aulaId }),
+        body: JSON.stringify({ assinatura: selectedAluno.id, aula: aulaId }),
         credentials: 'include',
       });
 
@@ -123,16 +117,20 @@ export default function InscricaoAula() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto my-8 p-8 bg-white shadow-xl rounded-xl">
-      <h1 className="text-4xl font-extrabold mb-6 text-center text-blue-600">Inscrição na Aula</h1>
+    <div className="max-w-4xl mx-auto p-8 bg-white shadow-lg rounded-xl">
+      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">📚 Inscrição na Aula</h1>
 
-      {errorMessage && <div className="p-4 mb-4 text-red-700 bg-red-100 rounded-lg">{errorMessage}</div>}
-      {successMessage && <div className="p-4 mb-4 text-green-700 bg-green-100 rounded-lg">{successMessage}</div>}
+      {errorMessage && (
+        <div className="p-4 mb-4 text-red-700 bg-red-100 rounded-lg text-center">{errorMessage}</div>
+      )}
+      {successMessage && (
+        <div className="p-4 mb-4 text-green-700 bg-green-100 rounded-lg text-center">{successMessage}</div>
+      )}
 
       <div className="mb-6">
         <input
           type="text"
-          placeholder="Buscar aluno por nome ou e-mail"
+          placeholder="🔍 Buscar aluno por nome ou e-mail"
           value={searchTerm}
           onChange={handleSearchChange}
           className="w-full p-4 border rounded-lg focus:ring-blue-500"
@@ -140,46 +138,54 @@ export default function InscricaoAula() {
       </div>
 
       {isLoading ? (
-        <p className="text-center">Carregando alunos...</p>
+        <p className="text-center text-gray-500">Carregando alunos...</p>
       ) : (
-        <ul className="space-y-2">
+        <ul className="space-y-4">
           {filteredAlunos.length > 0 ? (
             filteredAlunos.map((associacao) => (
               <li
                 key={associacao.id}
-                className={`p-4 border rounded-lg cursor-pointer ${
-                  selectedAluno?.id === associacao.id ? 'bg-blue-100 border-blue-500' : 'hover:bg-gray-100'
+                className={`p-4 border rounded-lg cursor-pointer transition ${
+                  selectedAluno?.id === associacao.id
+                    ? 'bg-blue-100 border-blue-500'
+                    : 'hover:bg-gray-100'
                 }`}
                 onClick={() => setSelectedAluno(associacao)}
               >
                 <div className="flex justify-between">
-                  <span className="font-semibold">
+                  <span className="font-semibold text-gray-800">
                     {associacao.aluno.first_name} {associacao.aluno.last_name}
                   </span>
                   <span>{associacao.aluno.email}</span>
                 </div>
                 {selectedAluno?.id === associacao.id && (
-                  <div className="mt-4 space-y-2">
+                  <div className="mt-4">
                     <p><strong>CPF:</strong> {formatCPF(selectedAluno.aluno.cpf)}</p>
                     <p><strong>Telefone:</strong> {formatPhone(selectedAluno.aluno.telefone)}</p>
-                    <p><strong>Assinatura:</strong> {formatDate(selectedAluno.data_assinatura)}</p>
+                    <p><strong>Data de Assinatura:</strong> {formatDate(selectedAluno.data_assinatura)}</p>
                     <p><strong>Vencimento:</strong> {formatDate(selectedAluno.vencimento)}</p>
                   </div>
                 )}
               </li>
             ))
           ) : (
-            <p className="text-center">Nenhum aluno encontrado.</p>
+            <p className="text-center text-gray-500">Nenhum aluno encontrado.</p>
           )}
         </ul>
       )}
 
-      <div className="flex justify-between mt-6">
-        <button onClick={handleInscricao} className="p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-          Confirmar Inscrição
+      <div className="flex justify-center gap-4 mt-8">
+        <button
+          onClick={handleInscricao}
+          className="p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+        >
+          ✅ Confirmar Inscrição
         </button>
-        <button onClick={() => router.push(`/aulas/${aulaId}`)} className="p-3 bg-gray-500 text-white rounded-lg">
-          Voltar
+        <button
+          onClick={() => router.push(`/aulas/${aulaId}`)}
+          className="p-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
+        >
+          🔙 Voltar
         </button>
       </div>
     </div>

@@ -3,7 +3,6 @@
 import { useState, ChangeEvent, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { formatarCREF, formatCPF, formatPhone } from '@/utils/formatações';
-import { validarCREF } from '@/utils/validações';
 
 interface FuncionarioFormData {
   first_name: string;
@@ -68,7 +67,7 @@ export default function CadastrarFuncionario() {
     
     setFormData((prev) => ({ ...prev, cref: formattedValue || null }));
     
-    if (formattedValue === '' || validarCREF(formattedValue || '')) {
+    if (formattedValue === '') {
       setCrefError('');
     } else {
       setCrefError('Formato de CREF inválido. Exemplo válido: 123456-G/UF');

@@ -1,17 +1,23 @@
 'use client';
 
 import { apiUrl } from '@/utils/imports';
-import React, { useState } from 'react';
-import { FaTrash } from 'react-icons/fa'; // Importando ícone de lixo para o botão de excluir
+import React, { useState, useEffect } from 'react';
+import { FaTrash } from 'react-icons/fa';
+
+interface Assinatura {
+  id: number;
+  total: number;
+  data_assinatura: string;
+  vencimento: string;
+  aluno: number; // Apenas o ID do aluno
+  plano: number;
+}
 
 interface Inscricao {
   id: number;
-  aluno: {
-    first_name: string;
-    last_name: string;
-    email: string;
-  };
+  assinatura: Assinatura;
   data_inscricao: string;
+  aula: number;
 }
 
 const Inscricoes = ({ data }: { data: Inscricao[] }) => {
@@ -19,9 +25,10 @@ const Inscricoes = ({ data }: { data: Inscricao[] }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
+  // Função para excluir uma inscrição
   const handleDelete = async (inscricaoId: number) => {
     if (!window.confirm('Tem certeza que deseja excluir esta inscrição?')) {
-      return; // Não faz nada se o usuário cancelar a exclusão
+      return; // Cancela a exclusão se o usuário não confirmar
     }
 
     try {
@@ -33,17 +40,17 @@ const Inscricoes = ({ data }: { data: Inscricao[] }) => {
       const data = await response.json();
       if (response.ok) {
         setInscricoes(inscricoes.filter((inscricao) => inscricao.id !== inscricaoId));
-        alert(data.success);
+        alert(data.success || 'Inscrição excluída com sucesso!');
       } else {
-        alert(data.error);
+        alert(data.error || 'Erro ao excluir inscrição.');
       }
     } catch (error) {
-      alert('Erro ao excluir inscrição');
+      alert('Erro ao conectar com o servidor.');
     }
   };
 
   return (
-    <div className="bg-white shadow-xl rounded-2xl p-6 max-w-5xl mx-auto my-6">
+    <div className="max-w-4xl mx-auto my-10 p-8 bg-white shadow-lg rounded-3xl border border-gray-200">
       <h2 className="text-4xl font-bold text-center text-gray-800 mb-8">Inscrições</h2>
 
       {loading && (
@@ -64,13 +71,22 @@ const Inscricoes = ({ data }: { data: Inscricao[] }) => {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-2xl font-semibold text-gray-800">
-                    {inscricao.aluno.first_name} {inscricao.aluno.last_name}
+                    Aluno ID: {inscricao.assinatura.aluno}
                   </p>
                   <p className="text-gray-600 mt-2">
-                    <strong>Email:</strong> {inscricao.aluno.email}
+                    <strong>Data da Assinatura:</strong>{' '}
+                    {new Date(inscricao.assinatura.data_assinatura).toLocaleDateString()}
                   </p>
                   <p className="text-gray-600 mt-1">
-                    <strong>Data de Inscrição:</strong> {new Date(inscricao.data_inscricao).toLocaleDateString()}
+                    <strong>Vencimento:</strong>{' '}
+                    {new Date(inscricao.assinatura.vencimento).toLocaleDateString()}
+                  </p>
+                  <p className="text-gray-600 mt-1">
+                    <strong>Data de Inscrição:</strong>{' '}
+                    {new Date(inscricao.data_inscricao).toLocaleDateString()}
+                  </p>
+                  <p className="text-gray-600 mt-1">
+                    <strong>Plano:</strong> {inscricao.assinatura.plano}
                   </p>
                 </div>
                 <button

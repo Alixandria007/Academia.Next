@@ -19,7 +19,8 @@ class Aluno(models.Model):
     data_de_nascimento = models.DateField(null=True, blank=True)
     cpf = models.CharField(max_length=14, unique=True)
     ativo = models.BooleanField(default=True)
-    
+    foto = models.ImageField(upload_to='alunos_fotos/', null=True, blank=True)
+
     def __str__(self):
         return f'Aluno {self.first_name} {self.last_name}'
     

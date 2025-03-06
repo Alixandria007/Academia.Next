@@ -33,7 +33,7 @@ export const Header = () => {
         </nav>
       </header>
 
-      <div className="p-8"></div>
+      <div className="p-8 my-2"></div>
     </>
   );
 };
