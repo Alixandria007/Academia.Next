@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Options from "../Options";
 import HamburgerButton from "../HamburguerButton";
+import Image from "next/image";
 
 export const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -15,10 +16,12 @@ export const Header = () => {
           <div className="flex lg:flex-1">
             <Link href="/" className="-m-1.5 p-1.5">
               <span className="sr-only">Academia</span>
-              <img
-                className="h-8 w-auto"
-                src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=600"
-                alt="Logo"
+              <Image
+                src="/next.svg" 
+                alt="Next.js Logo"
+                width={100} 
+                height={24}
+                priority
               />
             </Link>
           </div>

@@ -8,7 +8,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto px-6 text-center">
 
         <div className="mb-6">
-          <p className="text-2xl font-bold">Academia X</p>
+          <p className="text-2xl font-bold">Academia Next.js</p>
           <p className="text-sm text-gray-400">© 2024 Todos os direitos reservados - Por Alixandre de Oliveira</p>
         </div>
 

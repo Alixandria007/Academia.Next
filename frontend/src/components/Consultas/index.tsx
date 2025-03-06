@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { FiCheckCircle, FiXCircle, FiPlus } from 'react-icons/fi';
+import { FiCheckCircle, FiXCircle, FiPlus, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
 interface ConsultarProps<T> {
   data: T[];
@@ -25,14 +25,22 @@ const Consultar = <T,>({
   actions,
 }: ConsultarProps<T>) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [filteredData, setFilteredData] = useState<T[]>(data);
-  const pathname = usePathname()
-
+  const [filteredData, setFilteredData] = useState<T[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10; 
+  const pathname = usePathname();
 
   useEffect(() => {
     const filtered = data.filter((item) => filterFunction(item, searchTerm));
     setFilteredData(filtered);
+    setCurrentPage(1); 
   }, [searchTerm, data, filterFunction]);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
@@ -70,13 +78,10 @@ const Consultar = <T,>({
             </tr>
           </thead>
           <tbody>
-            {filteredData.map((item, index) => (
+            {currentItems.map((item, index) => (
               <tr key={index} className="hover:bg-gray-50">
                 {headers.map((header) => (
-                  <td
-                    key={String(header.key)}
-                    className="p-3 border border-gray-300"
-                  >
+                  <td key={String(header.key)} className="p-3 border border-gray-300">
                     {header.href ? (
                       <Link
                         href={`${pathname}/${item[header.key]}/`}
@@ -89,10 +94,15 @@ const Consultar = <T,>({
                             <FiXCircle className="text-red-500" />
                           )
                         ) : (
-                          String(header.key2 
-                            ? header.format 
-                              ? header.format(`${item[header.key]} ${item[header.key2]}`) : `${item[header.key]} ${item[header.key2]}` 
-                              : header.format ? header.format(item[header.key]) : item[header.key])
+                          String(
+                            header.key2
+                              ? header.format
+                                ? header.format(`${item[header.key]} ${item[header.key2]}`)
+                                : `${item[header.key]} ${item[header.key2]}`
+                              : header.format
+                              ? header.format(item[header.key])
+                              : item[header.key]
+                          )
                         )}
                       </Link>
                     ) : typeof item[header.key] === 'boolean' ? (
@@ -102,26 +112,49 @@ const Consultar = <T,>({
                         <FiXCircle className="text-red-500" />
                       )
                     ) : (
-                      String(header.key2 ? 
-                        header.format ? header.format(`${item[header.key]} ${item[header.key2]}`) 
-                        : `${item[header.key]} ${item[header.key2]}` 
-                        : header.format ? header.format(item[header.key]) : item[header.key])
+                      String(
+                        header.key2
+                          ? header.format
+                            ? header.format(`${item[header.key]} ${item[header.key2]}`)
+                            : `${item[header.key]} ${item[header.key2]}`
+                          : header.format
+                          ? header.format(item[header.key])
+                          : item[header.key]
+                      )
                     )}
                   </td>
                 ))}
-                {actions && (
-                  <td className="p-3 border border-gray-300">
-                    {actions(item)}
-                  </td>
-                )}
+                {actions && <td className="p-3 border border-gray-300">{actions(item)}</td>}
               </tr>
             ))}
           </tbody>
         </table>
 
         {filteredData.length === 0 && (
-          <div className="text-center text-gray-600 mt-4">
-            Nenhum item encontrado.
+          <div className="text-center text-gray-600 mt-4">Nenhum item encontrado.</div>
+        )}
+
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-4 mt-6">
+            <button
+              className={`p-2 rounded ${currentPage === 1 ? 'text-gray-400' : 'text-blue-500 hover:text-blue-700'}`}
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              <FiChevronLeft className="text-xl" />
+            </button>
+
+            <span className="text-gray-800">
+              Página {currentPage} de {totalPages}
+            </span>
+
+            <button
+              className={`p-2 rounded ${currentPage === totalPages ? 'text-gray-400' : 'text-blue-500 hover:text-blue-700'}`}
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              <FiChevronRight className="text-xl" />
+            </button>
           </div>
         )}
       </div>
